@@ -67,4 +67,36 @@ public class ImageService {
         return ImageIO.write(image, "png", outputFile);
     }
     
+    public BufferedImage duplicateSrcBufferedImage(BufferedImage input){
+        int width = input.getWidth() + 2;
+        int height = input.getHeight() + 2;
+        BufferedImage output = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        copyPixelsToCorners(output, input, width, height);
+        copyPixelsToLastColumnLastRow(width, output, input, height);
+        for (int i = 1; i < width - 1; i++) {
+            for (int j = 1; j < height - 1; j++) {
+                output.setRGB(i, j, input.getRGB(i - 1, j -1));
+            }
+        }
+        return output;
+    }
+
+    public void copyPixelsToLastColumnLastRow(int width, BufferedImage output, BufferedImage input, int height) {
+        for (int i = 1; i < width - 1; i++) {
+            output.setRGB(i, 0, input.getRGB(i - 1, 0));
+            output.setRGB(i, height - 1, input.getRGB(i - 1, height - 3));
+        }
+        for (int j = 1; j < height - 1; j++) {
+            output.setRGB(0, j, input.getRGB(0, j - 1));
+            output.setRGB(width - 1, j, input.getRGB(width - 3, j - 1));
+        }
+    }
+
+    public void copyPixelsToCorners(BufferedImage output, BufferedImage input, int width, int height) {
+        output.setRGB(0, 0, input.getRGB(0, 0));
+        output.setRGB(width - 1, 0, input.getRGB(width - 3, 0));
+        output.setRGB(0, height - 1, input.getRGB(0, height - 3));
+        output.setRGB(width -1, height - 1, input.getRGB(width - 3, height - 3));
+    }
+    
 }

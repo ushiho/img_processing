@@ -46,6 +46,7 @@ public class ImageViewController implements Initializable {
     PrewittService prewittService = new PrewittService();
     ImageService imageService = new ImageService();
     HeatEquationService heatEquationService = new HeatEquationService();
+    private String sliderValueFormat;
     private SelectedImage selectedImage;
     @FXML
     private ImageView imageSource;
@@ -80,10 +81,22 @@ public class ImageViewController implements Initializable {
         hideShowSliderInfos(false);
         progressIndicator.setVisible(false);
         slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            sliderLevelLabel.setText(String.format("%.2f", newValue));
+            sliderLevelLabel.setText(String.format(sliderValueFormat, newValue));
+            resetSourceImage();
         });
     }
 
+    public String getSliderValueFormat() {
+        if(sliderValueFormat == null || sliderValueFormat.equals("")){
+            sliderValueFormat = "%.2f";
+        }
+        return sliderValueFormat;
+    }
+
+    public void setSliderValueFormat(String sliderValueFormat) {
+        this.sliderValueFormat = sliderValueFormat;
+    }
+    
     public void hideShowSliderInfos(boolean state) {
         slider.setVisible(state);
         sliderLevelLabel.setVisible(state);
@@ -139,7 +152,7 @@ public class ImageViewController implements Initializable {
         try {
             if(imageSourceIsSetted()){
                 resetSourceImage();
-                //progressIndicator.setPrefSize(30, 30);
+                setSliderValueFormat("%.2f");
                 sliderTitle.setText("Seuil");
                 slider.setMin(0.0f);
                 slider.setMax(1.0f);
@@ -196,6 +209,7 @@ public class ImageViewController implements Initializable {
         try {
             if(imageSourceIsSetted()){
                 resetSourceImage();
+                setSliderValueFormat("%.2f");
                 sliderTitle.setText("Seuil");
                 slider.setMin(0.0f);
                 slider.setMax(1.0f);
@@ -247,23 +261,27 @@ public class ImageViewController implements Initializable {
     public void heatFilter() throws IOException{
         try {
             if(imageSourceIsSetted()){
-                if (slider.isVisible()) {
-                    hideShowSliderInfos(false);
-                }else{
-                    hideShowSliderInfos(true);
-                }
+                setSliderValueFormat("%.0f");
+                sliderTitle.setText("Iteration");
+                slider.setMin(0);
+                slider.setMax(100);
+                hideShowSliderInfos(true);
+                warningLabel.setText("Analyse Multi-échelle: Fonction de la chaleur");
+                sliderLevelLabel.setText("0");
+                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        try {
+                            resetSourceImage();
+                            setImageResult(heatEquationService.run(selectedImage, (int)slider.getValue()), "Fonction de la chaleur avec "+sliderLevelLabel.getText()+" itération");
+                        } catch (IOException ex) {
+                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                    }
+                });
             }
         } catch (Exception ex) {
-            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public void applyHeatFilter(Number newValue) throws NumberFormatException {
-        sliderLevelLabel.setText(Double.toString(newValue.intValue()));
-        resetSourceImage();
-        try {
-            setImageResult(heatEquationService.applyFilter(selectedImage, (int) Double.parseDouble(sliderLevelLabel.getText())), "Heat Filter");
-        } catch (IOException ex) {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -272,7 +290,7 @@ public class ImageViewController implements Initializable {
     public void setImageResult(boolean res, String processName) {
         if (res) {
             imageResult.setImage(new Image(imageService.getResultFile().toURI().toString(), 360, 290, false, false));
-            previewLabel.setText("Preview: "+processName);
+            previewLabel.setText("Aperçu: "+processName);
             previewLabel.setStyle("-fx-font-weight: bold");
         }else{
             System.out.println("Some Error is occured!");
@@ -281,7 +299,7 @@ public class ImageViewController implements Initializable {
     
     public boolean imageSourceIsSetted() throws Exception{
         if(imageSource.getImage() == null){
-            warningLabel.setText("No image is selected to filter");
+            warningLabel.setText("Aucune image n'est sélectionnée");
             return false;
         }
         return true;
@@ -340,7 +358,7 @@ public class ImageViewController implements Initializable {
     
     public void saveResImage() throws IOException{
         if(imageResult.getImage() == null){
-            warningLabel.setText("No filter is applied to save your tests.");
+            warningLabel.setText("Aucun filtre n'est appliqué pour enregistrer vos tests.");
         }else{
             imageService.saveImage(SwingFXUtils.fromFXImage(imageResult.getImage(), null));
         }

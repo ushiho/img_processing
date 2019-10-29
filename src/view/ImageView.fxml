@@ -41,28 +41,33 @@
                   <KeyCodeCombination alt="UP" code="T" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator>
             </Menu>
-            <Menu mnemonicParsing="false" text="Prewitt">
+            <Menu mnemonicParsing="false" text="Doctrine Classique">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#prewittIx" text="Ix" />
-                  <MenuItem mnemonicParsing="false" onAction="#prewittIy" text="Iy" />
-                  <MenuItem mnemonicParsing="false" onAction="#prewitt" text="Résultat" />
+                  <Menu mnemonicParsing="false" text="Sobel">
+                     <items>
+                        <MenuItem mnemonicParsing="false" onAction="#sobelIx" text="Ix" />
+                        <MenuItem mnemonicParsing="false" onAction="#sobelIy" text="Iy" />
+                        <MenuItem mnemonicParsing="false" onAction="#sobel" text="Résultat" />
+                     </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Prewitt">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#prewittIx" text="Ix" />
+                        <MenuItem mnemonicParsing="false" onAction="#prewittIy" text="Iy" />
+                        <MenuItem mnemonicParsing="false" onAction="#prewitt" text="Résultat" />
+                    </items>
+                  </Menu>
                </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Sobel">
+            <Menu mnemonicParsing="false" text="Analyse Multi-échelle">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#sobelIx" text="Ix" />
-                  <MenuItem mnemonicParsing="false" onAction="#sobelIy" text="Iy" />
-                  <MenuItem mnemonicParsing="false" onAction="#sobel" text="Résultat" />
+                  <MenuItem mnemonicParsing="false" onAction="#heatFilter" text="Fonction de la chaleur" />
+                  <MenuItem mnemonicParsing="false" text="EMSS" />
                </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="MCM">
+            <Menu mnemonicParsing="false" text="Aidez-moi">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#heatFilter" text="Fonction Chaleur" />
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Help">
-               <items>
-                  <MenuItem mnemonicParsing="false" text="About" />
+                  <MenuItem mnemonicParsing="false" text="A propos" />
                </items>
             </Menu>
          </menus>
@@ -77,12 +82,12 @@
             <ImageView fx:id="imageResult" fitHeight="290.0" fitWidth="360.0" pickOnBounds="true" preserveRatio="true" />
          </children>
       </HBox>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="142.0" layoutY="382.0" prefHeight="29.0" prefWidth="107.0" text="Source Image" textAlignment="CENTER">
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="106.0" layoutY="382.0" prefHeight="29.0" prefWidth="179.0" text="Image source" textAlignment="CENTER">
          <font>
             <Font name="Liberation Serif" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="previewLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="620.0" layoutY="382.0" prefHeight="29.0" prefWidth="179.0" textAlignment="CENTER">
+      <Label fx:id="previewLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="529.0" layoutY="382.0" prefHeight="29.0" prefWidth="360.0" textAlignment="CENTER">
          <font>
             <Font name="Liberation Serif" size="16.0" />
          </font>

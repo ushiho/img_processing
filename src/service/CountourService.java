@@ -46,11 +46,10 @@ public class CountourService {
     }
    
     public boolean deriveResult(SelectedImage selectedImage, double scale) throws IOException{
-        BufferedImage copy = duplicateSrcBufferedImage(selectedImage.getBufferedImage());
+        BufferedImage copy = imageService.duplicateSrcBufferedImage(selectedImage.getBufferedImage());
         int width = copy.getWidth();
         int height = copy.getHeight();
-        int[][] edgeColors = new int[width][height];
-        int maxGradient = -1;
+        int[][] edgeColors = new int[width - 2][height - 2];
 
         for (int i = 1; i < width - 1; i++) {
             for (int j = 1; j < height - 1; j++) {
@@ -65,80 +64,57 @@ public class CountourService {
                 int gy =  filterDeriveIy(neighborPixel);
 
                 int g = (int) Math.sqrt((gx * gx) + (gy * gy));
-                /*if (g > 120) {
-                    g = 255;
-                }else{
-                    g = 0;
-                }*/
-                /*if(maxGradient < g) {
-                    maxGradient = g;
-                }*/
 
-                edgeColors[i][j] = g;
+                edgeColors[i -1][j - 1] = g;
             }
         }
 
-        return saveResImage(scale, width, height, edgeColors, copy);
+        return saveResImage(scale, width, height, edgeColors, selectedImage.getBufferedImage());
     }
     
     public boolean deriveIY(SelectedImage selectedImage) throws IOException{
-        BufferedImage image = selectedImage.getBufferedImage();
-        int width = image.getWidth();
-        int height = image.getHeight();
-
-        int[][] edgeColors = new int[width][height];
-        int maxGradient = -1;
+        BufferedImage copy = imageService.duplicateSrcBufferedImage(selectedImage.getBufferedImage());
+        int width = copy.getWidth();
+        int height = copy.getHeight();
+        int[][] edgeColors = new int[width - 2][height - 2];
 
         for (int i = 1; i < width - 1; i++) {
             for (int j = 1; j < height - 1; j++) {
                 int[][] neighborPixel = {
-                {imageService.getGrayScale(image.getRGB(i - 1, j - 1)), imageService.getGrayScale(image.getRGB(i - 1, j)), imageService.getGrayScale(image.getRGB(i - 1, j + 1))},
-                {imageService.getGrayScale(image.getRGB(i, j - 1)), imageService.getGrayScale(image.getRGB(i, j)), imageService.getGrayScale(image.getRGB(i, j + 1))},
-                {imageService.getGrayScale(image.getRGB(i + 1, j - 1)), imageService.getGrayScale(image.getRGB(i + 1, j)), imageService.getGrayScale(image.getRGB(i + 1, j + 1))}
+                {imageService.getGrayScale(copy.getRGB(i - 1, j - 1)), imageService.getGrayScale(copy.getRGB(i - 1, j)), imageService.getGrayScale(copy.getRGB(i - 1, j + 1))},
+                {imageService.getGrayScale(copy.getRGB(i, j - 1)), imageService.getGrayScale(copy.getRGB(i, j)), imageService.getGrayScale(copy.getRGB(i, j + 1))},
+                {imageService.getGrayScale(copy.getRGB(i + 1, j - 1)), imageService.getGrayScale(copy.getRGB(i + 1, j)), imageService.getGrayScale(copy.getRGB(i + 1, j + 1))}
             };
                 
                 int gy =  filterDeriveIy(neighborPixel);
-                //gy = gy > 255 ? 255 : gy;
-                //gy = gy < 0 ? 0 : gy;
-                /*if(maxGradient < gy) {
-                    maxGradient = gy;
-                }*/
-
-                edgeColors[i][j] = gy;
+                edgeColors[i - 1][j - 1] = gy;
             }
         }
 
-        return saveResImage(1.0d, width, height, edgeColors, image);
+        return saveResImage(1.0d, width, height, edgeColors, selectedImage.getBufferedImage());
     }
     
     public boolean deriveIX(SelectedImage selectedImage) throws IOException{
-        BufferedImage image = selectedImage.getBufferedImage();
-        int width = image.getWidth();
-        int height = image.getHeight();
+        BufferedImage copy = imageService.duplicateSrcBufferedImage(selectedImage.getBufferedImage());
+        int width = copy.getWidth();
+        int height = copy.getHeight();
 
-        int[][] edgeColors = new int[width][height];
-        int maxGradient = -1;
+        int[][] edgeColors = new int[width - 2][height - 2];
 
         for (int i = 1; i < width - 1; i++) {
             for (int j = 1; j < height - 1; j++) {
                 int[][] neighborPixel = {
-                {imageService.getGrayScale(image.getRGB(i - 1, j - 1)), imageService.getGrayScale(image.getRGB(i - 1, j)), imageService.getGrayScale(image.getRGB(i - 1, j + 1))},
-                {imageService.getGrayScale(image.getRGB(i, j - 1)), imageService.getGrayScale(image.getRGB(i, j)), imageService.getGrayScale(image.getRGB(i, j + 1))},
-                {imageService.getGrayScale(image.getRGB(i + 1, j - 1)), imageService.getGrayScale(image.getRGB(i + 1, j)), imageService.getGrayScale(image.getRGB(i + 1, j + 1))}
+                {imageService.getGrayScale(copy.getRGB(i - 1, j - 1)), imageService.getGrayScale(copy.getRGB(i - 1, j)), imageService.getGrayScale(copy.getRGB(i - 1, j + 1))},
+                {imageService.getGrayScale(copy.getRGB(i, j - 1)), imageService.getGrayScale(copy.getRGB(i, j)), imageService.getGrayScale(copy.getRGB(i, j + 1))},
+                {imageService.getGrayScale(copy.getRGB(i + 1, j - 1)), imageService.getGrayScale(copy.getRGB(i + 1, j)), imageService.getGrayScale(copy.getRGB(i + 1, j + 1))}
             };
 
                 int gx =  filterDeriveIx(neighborPixel);
-                //gx = gx > 255 ? 255 : gx;
-                //gx = gx < 0 ? 0 : gx;
-                /*if(maxGradient < gx) {
-                    maxGradient = gx;
-                }*/
-
-                edgeColors[i][j] = gx;
+                edgeColors[i - 1][j - 1] = gx;
             }
         }
 
-        return saveResImage(1.0d, width, height, edgeColors, image);
+        return saveResImage(1.0d, width, height, edgeColors, selectedImage.getBufferedImage());
     }
     
     public int filterDeriveIy(int[][] neighborPixel) {
@@ -157,8 +133,8 @@ public class CountourService {
     
     public boolean saveResImage(double scale, int width, int height, int[][] edgeColors, BufferedImage image)
             throws IOException {
-        for (int i = 1; i < width - 1; i++) {
-            for (int j = 1; j < height - 1; j++) {
+        for (int i = 0; i < width - 2; i++) {
+            for (int j = 0; j < height - 2; j++) {
                 int edgeColor = edgeColors[i][j];
                 edgeColor = (int)(edgeColor * scale);
                 edgeColor = 0xff000000 | (edgeColor << 16) | (edgeColor << 8) | edgeColor;
@@ -166,40 +142,7 @@ public class CountourService {
                 image.setRGB(i, j, edgeColor);
             }
         }
-
         File outputfile = new File("output/result.png");
         return ImageIO.write(image, "png", outputfile);
-    }
-    
-    public BufferedImage duplicateSrcBufferedImage(BufferedImage input){
-        int width = input.getWidth() + 2;
-        int height = input.getHeight() + 2;
-        BufferedImage output = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        copyPixelsToCorners(output, input, width, height);
-        copyPixelsToLastColumnLastRow(width, output, input, height);
-        for (int i = 1; i < width - 1; i++) {
-            for (int j = 1; j < height - 1; j++) {
-                output.setRGB(i, j, input.getRGB(i - 1, j -1));
-            }
-        }
-        return output;
-    }
-
-    public void copyPixelsToLastColumnLastRow(int width, BufferedImage output, BufferedImage input, int height) {
-        for (int i = 1; i < width - 1; i++) {
-            output.setRGB(i, 0, input.getRGB(i - 1, 0));
-            output.setRGB(i, height - 1, input.getRGB(i - 1, height - 3));
-        }
-        for (int j = 1; j < height - 1; j++) {
-            output.setRGB(0, j, input.getRGB(0, j - 1));
-            output.setRGB(width - 1, j, input.getRGB(width - 3, j - 1));
-        }
-    }
-
-    public void copyPixelsToCorners(BufferedImage output, BufferedImage input, int width, int height) {
-        output.setRGB(0, 0, input.getRGB(0, 0));
-        output.setRGB(width - 1, 0, input.getRGB(width - 3, 0));
-        output.setRGB(0, height - 1, input.getRGB(0, height - 3));
-        output.setRGB(width -1, height - 1, input.getRGB(width - 3, height - 3));
     }
 }
