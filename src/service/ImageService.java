@@ -99,4 +99,37 @@ public class ImageService {
         output.setRGB(width -1, height - 1, input.getRGB(width - 3, height - 3));
     }
     
+    public BufferedImage matrixToBufferedImage(int width, int height, double[][] edgeColors, BufferedImage image) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                int edgeColor = (int)edgeColors[i][j];
+                edgeColor = 0xff000000 | (edgeColor << 16) | (edgeColor << 8) | edgeColor;
+
+                image.setRGB(i, j, edgeColor);
+            }
+        }
+        return image;
+    }
+    
+    public double[][] copyGrayScaleFromImage(BufferedImage image){
+        int width = image.getWidth();
+        int height = image.getHeight();
+        double[][] copy = new double[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                copy[i][j] = getGrayScale(image.getRGB(i, j));
+            }
+        }
+        return copy;
+    }
+    
+    public boolean saveResImageToFile(double[][] edgeColors, BufferedImage image)
+            throws IOException {
+        
+        image = matrixToBufferedImage(image.getWidth(), image.getHeight(), edgeColors, image);
+
+        File outputfile = new File("output/result.png");
+        return ImageIO.write(image, "png", outputfile);
+    }
+    
 }

@@ -57,12 +57,13 @@
                         <MenuItem mnemonicParsing="false" onAction="#prewitt" text="Résultat" />
                     </items>
                   </Menu>
+                  <MenuItem mnemonicParsing="false" onAction="#gaussianBlur" text="Gaussian blur" />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Analyse Multi-échelle">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#heatFilter" text="Fonction de la chaleur" />
-                  <MenuItem mnemonicParsing="false" text="EMSS" />
+                  <MenuItem mnemonicParsing="false" onAction="#emssFilter" text="EMSS" />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Aidez-moi">

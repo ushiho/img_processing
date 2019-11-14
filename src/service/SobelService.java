@@ -13,8 +13,8 @@ import bean.SelectedImage;
  * @author swiri
  */
 public class SobelService {    
-    int[][] sobelIx = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-    int[][] sobelIy = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+    double[][] sobelIx = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+    double[][] sobelIy = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
     
     CountourService countourService = new CountourService(sobelIx, sobelIy);
    

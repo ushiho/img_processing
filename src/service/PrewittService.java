@@ -13,8 +13,8 @@ import java.io.IOException;
  * @author swiri
  */
 public class PrewittService {
-    int[][] prewittIx = {{-1, 0, 1}, {-1, 0, 1}, {-1, 0, 1}};
-    int[][] prewittIy = {{-1, -1, -1}, {0, 0, 0}, {1, 1, 1}};
+    double[][] prewittIx = {{-1, 0, 1}, {-1, 0, 1}, {-1, 0, 1}};
+    double[][] prewittIy = {{-1, -1, -1}, {0, 0, 0}, {1, 1, 1}};
      CountourService countourService = new CountourService(prewittIx, prewittIy);
    
     public boolean prewitt(SelectedImage selectedImage, double scale) throws IOException{

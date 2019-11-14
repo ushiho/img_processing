@@ -29,6 +29,8 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Slider;
+import service.EmssService;
+import service.GaussianBlurService;
 import service.HeatEquationService;
 import service.ImageService;
 import service.PrewittService;
@@ -46,6 +48,8 @@ public class ImageViewController implements Initializable {
     PrewittService prewittService = new PrewittService();
     ImageService imageService = new ImageService();
     HeatEquationService heatEquationService = new HeatEquationService();
+    GaussianBlurService gaussianBlurService = new GaussianBlurService();
+    EmssService emssService = new EmssService();
     private String sliderValueFormat;
     private SelectedImage selectedImage;
     @FXML
@@ -146,145 +150,7 @@ public class ImageViewController implements Initializable {
         Platform.exit();
         System.exit(0);
         resetApp();
-    }
-    
-    public void sobel() throws IOException{
-        try {
-            if(imageSourceIsSetted()){
-                resetSourceImage();
-                setSliderValueFormat("%.2f");
-                sliderTitle.setText("Seuil");
-                slider.setMin(0.0f);
-                slider.setMax(1.0f);
-                hideShowSliderInfos(true);
-                warningLabel.setText("Doctrine classique: Sobel");
-                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                        try {
-                            setImageResult(sobelService.sobel(selectedImage, slider.getValue()), "Sobel");
-                        } catch (IOException ex) {
-                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        
-                    }
-                });
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public void resetSourceImage() {
-        selectedImage.setBufferedImage(SwingFXUtils.fromFXImage(imageSource.getImage(), null));
-    }
-    
-    public void  sobelIy() throws IOException{
-        try {
-            if(imageSourceIsSetted()){
-                warningLabel.setText("Doctrine classique: derivée Sobel suivant Y");
-                hideShowSliderInfos(false);
-                resetSourceImage();
-                setImageResult(sobelService.sobelIY(selectedImage), "Sobel (Iy)");
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public void sobelIx() throws IOException{
-        try {
-            if(imageSourceIsSetted()){
-                warningLabel.setText("Doctrine classique: derivée Sobel suivant X");
-                hideShowSliderInfos(false);
-                resetSourceImage();
-                setImageResult(sobelService.sobelIX(selectedImage), "Sobel (Ix)");
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public void prewitt() throws IOException{
-        try {
-            if(imageSourceIsSetted()){
-                resetSourceImage();
-                setSliderValueFormat("%.2f");
-                sliderTitle.setText("Seuil");
-                slider.setMin(0.0f);
-                slider.setMax(1.0f);
-                hideShowSliderInfos(true);
-                warningLabel.setText("Doctrine classique: Prewitt");
-                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                        try {
-                            setImageResult(prewittService.prewitt(selectedImage, slider.getValue()), "Prewitt");
-                        } catch (IOException ex) {
-                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        
-                    }
-                });
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public void  prewittIy() throws IOException{
-        try {
-            if(imageSourceIsSetted()){
-                warningLabel.setText("Doctrine classique: derivée Prewitt suivant Y");
-                hideShowSliderInfos(false);
-                resetSourceImage();
-                setImageResult(prewittService.prewittIY(selectedImage), "Prewitt (Iy)");
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public void prewittIx() throws IOException{
-        try {
-            warningLabel.setText("Doctrine classique: derivée Prewitt suivant X");
-            if(imageSourceIsSetted()){
-                hideShowSliderInfos(false);
-                resetSourceImage();
-                setImageResult(prewittService.prewittIX(selectedImage), "Prewitt (Ix)");
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public void heatFilter() throws IOException{
-        try {
-            if(imageSourceIsSetted()){
-                setSliderValueFormat("%.0f");
-                sliderTitle.setText("Iteration");
-                slider.setMin(0);
-                slider.setMax(100);
-                hideShowSliderInfos(true);
-                warningLabel.setText("Analyse Multi-échelle: Fonction de la chaleur");
-                sliderLevelLabel.setText("0");
-                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                        try {
-                            resetSourceImage();
-                            setImageResult(heatEquationService.run(selectedImage, (int)slider.getValue()), "Fonction de la chaleur avec "+sliderLevelLabel.getText()+" itération");
-                        } catch (IOException ex) {
-                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        
-                    }
-                });
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+    }   
     
     // Set Image To privew
     public void setImageResult(boolean res, String processName) {
@@ -363,5 +229,193 @@ public class ImageViewController implements Initializable {
             imageService.saveImage(SwingFXUtils.fromFXImage(imageResult.getImage(), null));
         }
     }
+    
+    
+       // Begin Filter Functions 
+    
+    public void sobel() throws IOException{
+        try {
+            if(imageSourceIsSetted()){
+                resetSourceImage();
+                setSliderValueFormat("%.2f");
+                sliderTitle.setText("Seuil");
+                slider.setMin(0.0f);
+                slider.setMax(1.0f);
+                slider.setValue(0.0);
+                hideShowSliderInfos(true);
+                warningLabel.setText("Doctrine classique: Sobel");
+                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        try {
+                            setImageResult(sobelService.sobel(selectedImage, slider.getValue()), "Sobel");
+                        } catch (IOException ex) {
+                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                    }
+                });
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void resetSourceImage() {
+        selectedImage.setBufferedImage(SwingFXUtils.fromFXImage(imageSource.getImage(), null));
+    }
+    
+    public void  sobelIy() throws IOException{
+        try {
+            if(imageSourceIsSetted()){
+                warningLabel.setText("Doctrine classique: derivée Sobel suivant Y");
+                hideShowSliderInfos(false);
+                resetSourceImage();
+                setImageResult(sobelService.sobelIY(selectedImage), "Sobel (Iy)");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void sobelIx() throws IOException{
+        try {
+            if(imageSourceIsSetted()){
+                warningLabel.setText("Doctrine classique: derivée Sobel suivant X");
+                hideShowSliderInfos(false);
+                resetSourceImage();
+                setImageResult(sobelService.sobelIX(selectedImage), "Sobel (Ix)");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void prewitt() throws IOException{
+        try {
+            if(imageSourceIsSetted()){
+                resetSourceImage();
+                setSliderValueFormat("%.2f");
+                sliderTitle.setText("Seuil");
+                slider.setMin(0.0f);
+                slider.setMax(1.0f);
+                slider.setValue(0.0);
+                hideShowSliderInfos(true);
+                warningLabel.setText("Doctrine classique: Prewitt");
+                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        try {
+                            setImageResult(prewittService.prewitt(selectedImage, slider.getValue()), "Prewitt");
+                        } catch (IOException ex) {
+                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                    }
+                });
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void  prewittIy() throws IOException{
+        try {
+            if(imageSourceIsSetted()){
+                warningLabel.setText("Doctrine classique: derivée Prewitt suivant Y");
+                hideShowSliderInfos(false);
+                resetSourceImage();
+                setImageResult(prewittService.prewittIY(selectedImage), "Prewitt (Iy)");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void prewittIx() throws IOException{
+        try {
+            warningLabel.setText("Doctrine classique: derivée Prewitt suivant X");
+            if(imageSourceIsSetted()){
+                hideShowSliderInfos(false);
+                resetSourceImage();
+                setImageResult(prewittService.prewittIX(selectedImage), "Prewitt (Ix)");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void heatFilter() throws IOException{
+        try {
+            if(imageSourceIsSetted()){
+                setSliderValueFormat("%.0f");
+                sliderTitle.setText("Iteration");
+                slider.setMin(0);
+                slider.setMax(100);
+                slider.setValue(0.0);
+                hideShowSliderInfos(true);
+                warningLabel.setText("Analyse Multi-échelle: Fonction de la chaleur");
+                sliderLevelLabel.setText("0");
+                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        try {
+                            resetSourceImage();
+                            setImageResult(heatEquationService.run(selectedImage, (int)slider.getValue()), "Fonction de la chaleur avec "+sliderLevelLabel.getText()+" itération");
+                        } catch (IOException ex) {
+                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                    }
+                });
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void  gaussianBlur() throws IOException{
+        try {
+            if(imageSourceIsSetted()){
+                warningLabel.setText("Doctrine classique: Gaussian blur");
+                hideShowSliderInfos(false);
+                resetSourceImage();
+                setImageResult(gaussianBlurService.applyBlur(selectedImage), "Gaussian blur");
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void emssFilter() throws IOException{
+        try {
+            if(imageSourceIsSetted()){
+                setSliderValueFormat("%.0f");
+                sliderTitle.setText("Iteration");
+                slider.setMin(0);
+                slider.setMax(100);
+                hideShowSliderInfos(true);
+                warningLabel.setText("Analyse Multi-échelle: EMSS");
+                sliderLevelLabel.setText("0");
+                slider.setValue(0.0);
+                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        try {
+                            resetSourceImage();
+                            setImageResult(emssService.run(selectedImage, (int) Math.ceil(slider.getValue())), "EMSS avec "+sliderLevelLabel.getText()+" itération");
+                        } catch (IOException ex) {
+                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                    }
+                });
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    // End Filter Functions 
    
 }
