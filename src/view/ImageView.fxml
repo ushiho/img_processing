@@ -5,8 +5,8 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.HBox?>
@@ -66,6 +66,11 @@
                   <MenuItem mnemonicParsing="false" onAction="#emssFilter" text="EMSS" />
                </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Diffusion Anistrope">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#malikPeronaFilter" text="Malik &amp; Perona" />
+               </items>
+            </Menu>
             <Menu mnemonicParsing="false" text="Aidez-moi">
                <items>
                   <MenuItem mnemonicParsing="false" text="A propos" />
@@ -88,7 +93,7 @@
             <Font name="Liberation Serif" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="previewLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="529.0" layoutY="382.0" prefHeight="29.0" prefWidth="360.0" textAlignment="CENTER">
+      <Label fx:id="previewLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="533.0" layoutY="383.0" prefHeight="29.0" prefWidth="352.0" textAlignment="CENTER">
          <font>
             <Font name="Liberation Serif" size="16.0" />
          </font>
@@ -98,18 +103,23 @@
             <Font name="Liberation Serif" size="17.0" />
          </font>
       </Label>
-      <ProgressIndicator fx:id="progressIndicator" layoutX="437.0" layoutY="202.0" prefHeight="30.0" prefWidth="30.0" />
-      <Slider fx:id="slider" layoutX="363.0" layoutY="371.0" prefHeight="15.0" prefWidth="179.0" showTickMarks="true" style="-fx-cursor: hand;" />
-      <Label fx:id="sliderLevelLabel" alignment="CENTER" layoutX="429.0" layoutY="396.0" prefHeight="19.0" prefWidth="46.0" text="0.0">
+      <Label fx:id="seuilLevel" alignment="CENTER" layoutX="417.0" layoutY="250.0" prefHeight="19.0" prefWidth="69.0" text="0.0">
          <font>
             <Font name="Liberation Serif" size="16.0" />
          </font>
       </Label>
-      <Button fx:id="sliderButton" layoutX="399.0" layoutY="423.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" style="-fx-cursor: hand;" text="Appliquer" />
-      <Label fx:id="sliderTitle" alignment="CENTER" layoutX="376.0" layoutY="338.0" prefHeight="25.0" prefWidth="152.0" text="Seuil">
+      <Button fx:id="applyFilterButton" layoutX="399.0" layoutY="423.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" style="-fx-cursor: hand;" text="Appliquer" />
+      <Label fx:id="iterationLabel" alignment="CENTER" layoutX="376.0" layoutY="351.0" prefHeight="25.0" prefWidth="152.0" text="Nombre Itération">
          <font>
             <Font name="Liberation Serif" size="16.0" />
          </font>
       </Label>
+      <TextField fx:id="iteration" alignment="CENTER" layoutX="392.0" layoutY="384.0" prefHeight="26.0" prefWidth="122.0" />
+      <Label fx:id="seuilLabel" alignment="CENTER" layoutX="376.0" layoutY="71.0" prefHeight="25.0" prefWidth="152.0" text="Seuil">
+         <font>
+            <Font name="Liberation Serif" size="16.0" />
+         </font>
+      </Label>
+      <Slider fx:id="seuilSlider" layoutX="444.0" layoutY="96.0" max="1.0" orientation="VERTICAL" />
    </children>
 </Pane>

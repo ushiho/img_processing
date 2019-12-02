@@ -26,13 +26,16 @@ import javafx.stage.Stage;
 import bean.SelectedImage;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import service.EmssService;
 import service.GaussianBlurService;
 import service.HeatEquationService;
 import service.ImageService;
+import service.MalikPerona;
 import service.PrewittService;
 import service.SobelService;
 
@@ -50,6 +53,7 @@ public class ImageViewController implements Initializable {
     HeatEquationService heatEquationService = new HeatEquationService();
     GaussianBlurService gaussianBlurService = new GaussianBlurService();
     EmssService emssService = new EmssService();
+    MalikPerona malikPerona = new MalikPerona();
     private String sliderValueFormat;
     private SelectedImage selectedImage;
     @FXML
@@ -65,13 +69,17 @@ public class ImageViewController implements Initializable {
     @FXML
     private ProgressIndicator progressIndicator;
     @FXML
-    private Slider slider;
+    private Slider seuilSlider;
     @FXML
-    private Label sliderLevelLabel;
+    private Label seuilLevel;
     @FXML
-    private Label sliderTitle;
+    private Label seuilLabel;
     @FXML
-    private Button sliderButton;
+    private TextField iteration;
+    @FXML
+    private Label iterationLabel;
+    @FXML
+    private Button applyFilterButton;
     
     
     /**
@@ -82,10 +90,12 @@ public class ImageViewController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        hideShowSliderInfos(false);
-        progressIndicator.setVisible(false);
-        slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            sliderLevelLabel.setText(String.format(sliderValueFormat, newValue));
+        hideShowSeuilInfos(false);
+        hideShowIterationInfos(false);
+        applyFilterButton.setVisible(false);
+//        progressIndicator.setVisible(false);
+        seuilSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            seuilLevel.setText(String.format(sliderValueFormat, newValue));
             resetSourceImage();
         });
     }
@@ -101,11 +111,15 @@ public class ImageViewController implements Initializable {
         this.sliderValueFormat = sliderValueFormat;
     }
     
-    public void hideShowSliderInfos(boolean state) {
-        slider.setVisible(state);
-        sliderLevelLabel.setVisible(state);
-        sliderButton.setVisible(state);
-        sliderTitle.setVisible(state);
+    public void hideShowSeuilInfos(boolean state) {
+        seuilSlider.setVisible(state);
+        seuilLevel.setVisible(state);
+        seuilLabel.setVisible(state);
+    }
+    
+    public void hideShowIterationInfos(boolean state) {
+        iteration.setVisible(state);
+        iterationLabel.setVisible(state);
     }
 
     public ImageView getImageSource() {
@@ -141,8 +155,11 @@ public class ImageViewController implements Initializable {
             previewLabel.setText("");
             imageService.getResultFile().delete();
             imageSource.setImage(null);
-            hideShowSliderInfos(false);
+            hideShowSeuilInfos(false);
+            hideShowIterationInfos(false);
+            applyFilterButton.setVisible(false);
             warningLabel.setText("");
+            iteration.setText("");
         }
     }
     
@@ -159,7 +176,7 @@ public class ImageViewController implements Initializable {
             previewLabel.setText("Aperçu: "+processName);
             previewLabel.setStyle("-fx-font-weight: bold");
         }else{
-            System.out.println("Some Error is occured!");
+            previewLabel.setText("Some Error is occured!");
         }
     }
     
@@ -238,17 +255,16 @@ public class ImageViewController implements Initializable {
             if(imageSourceIsSetted()){
                 resetSourceImage();
                 setSliderValueFormat("%.2f");
-                sliderTitle.setText("Seuil");
-                slider.setMin(0.0f);
-                slider.setMax(1.0f);
-                slider.setValue(0.0);
-                hideShowSliderInfos(true);
+                seuilSlider.setValue(0.0);
+                hideShowSeuilInfos(true);
+                hideShowIterationInfos(false);
+                applyFilterButton.setVisible(true);
                 warningLabel.setText("Doctrine classique: Sobel");
-                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
+                applyFilterButton.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
                         try {
-                            setImageResult(sobelService.sobel(selectedImage, slider.getValue()), "Sobel");
+                            setImageResult(sobelService.sobel(selectedImage, seuilSlider.getValue()), "Sobel");
                         } catch (IOException ex) {
                             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -269,7 +285,7 @@ public class ImageViewController implements Initializable {
         try {
             if(imageSourceIsSetted()){
                 warningLabel.setText("Doctrine classique: derivée Sobel suivant Y");
-                hideShowSliderInfos(false);
+                hideShowSeuilInfos(false);
                 resetSourceImage();
                 setImageResult(sobelService.sobelIY(selectedImage), "Sobel (Iy)");
             }
@@ -282,7 +298,7 @@ public class ImageViewController implements Initializable {
         try {
             if(imageSourceIsSetted()){
                 warningLabel.setText("Doctrine classique: derivée Sobel suivant X");
-                hideShowSliderInfos(false);
+                hideShowSeuilInfos(false);
                 resetSourceImage();
                 setImageResult(sobelService.sobelIX(selectedImage), "Sobel (Ix)");
             }
@@ -296,17 +312,16 @@ public class ImageViewController implements Initializable {
             if(imageSourceIsSetted()){
                 resetSourceImage();
                 setSliderValueFormat("%.2f");
-                sliderTitle.setText("Seuil");
-                slider.setMin(0.0f);
-                slider.setMax(1.0f);
-                slider.setValue(0.0);
-                hideShowSliderInfos(true);
+                seuilSlider.setValue(0.0);
+                hideShowSeuilInfos(true);
+                hideShowIterationInfos(false);
+                applyFilterButton.setVisible(true);
                 warningLabel.setText("Doctrine classique: Prewitt");
-                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
+                applyFilterButton.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
                         try {
-                            setImageResult(prewittService.prewitt(selectedImage, slider.getValue()), "Prewitt");
+                            setImageResult(prewittService.prewitt(selectedImage, seuilSlider.getValue()), "Prewitt");
                         } catch (IOException ex) {
                             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -323,7 +338,7 @@ public class ImageViewController implements Initializable {
         try {
             if(imageSourceIsSetted()){
                 warningLabel.setText("Doctrine classique: derivée Prewitt suivant Y");
-                hideShowSliderInfos(false);
+                hideShowSeuilInfos(false);
                 resetSourceImage();
                 setImageResult(prewittService.prewittIY(selectedImage), "Prewitt (Iy)");
             }
@@ -336,7 +351,7 @@ public class ImageViewController implements Initializable {
         try {
             warningLabel.setText("Doctrine classique: derivée Prewitt suivant X");
             if(imageSourceIsSetted()){
-                hideShowSliderInfos(false);
+                hideShowSeuilInfos(false);
                 resetSourceImage();
                 setImageResult(prewittService.prewittIX(selectedImage), "Prewitt (Ix)");
             }
@@ -348,20 +363,17 @@ public class ImageViewController implements Initializable {
     public void heatFilter() throws IOException{
         try {
             if(imageSourceIsSetted()){
-                setSliderValueFormat("%.0f");
-                sliderTitle.setText("Iteration");
-                slider.setMin(0);
-                slider.setMax(100);
-                slider.setValue(0.0);
-                hideShowSliderInfos(true);
+                hideShowSeuilInfos(false);
+                hideShowIterationInfos(true);
+                applyFilterButton.setVisible(true);
+                iteration.setText("");
                 warningLabel.setText("Analyse Multi-échelle: Fonction de la chaleur");
-                sliderLevelLabel.setText("0");
-                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
+                applyFilterButton.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
                         try {
                             resetSourceImage();
-                            setImageResult(heatEquationService.run(selectedImage, (int)slider.getValue()), "Fonction de la chaleur avec "+sliderLevelLabel.getText()+" itération");
+                            setImageResult(heatEquationService.run(selectedImage, Integer.parseInt(iteration.getText())), "Fonction de la chaleur avec "+iteration.getText()+" itération");
                         } catch (IOException ex) {
                             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -378,7 +390,7 @@ public class ImageViewController implements Initializable {
         try {
             if(imageSourceIsSetted()){
                 warningLabel.setText("Doctrine classique: Gaussian blur");
-                hideShowSliderInfos(false);
+                hideShowSeuilInfos(false);
                 resetSourceImage();
                 setImageResult(gaussianBlurService.applyBlur(selectedImage), "Gaussian blur");
             }
@@ -390,20 +402,55 @@ public class ImageViewController implements Initializable {
     public void emssFilter() throws IOException{
         try {
             if(imageSourceIsSetted()){
-                setSliderValueFormat("%.0f");
-                sliderTitle.setText("Iteration");
-                slider.setMin(0);
-                slider.setMax(100);
-                hideShowSliderInfos(true);
+                hideShowSeuilInfos(false);
+                hideShowIterationInfos(true);
+                applyFilterButton.setVisible(true);
+                iteration.setText("");
+                removeFocusOnTextField();
                 warningLabel.setText("Analyse Multi-échelle: EMSS");
-                sliderLevelLabel.setText("0");
-                slider.setValue(0.0);
-                sliderButton.setOnAction(new EventHandler<ActionEvent>() {
+                applyFilterButton.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
                         try {
                             resetSourceImage();
-                            setImageResult(emssService.run(selectedImage, (int) Math.ceil(slider.getValue())), "EMSS avec "+sliderLevelLabel.getText()+" itération");
+                            setImageResult(emssService.run(selectedImage, Integer.parseInt(iteration.getText())), "EMSS avec "+iteration.getText()+" itération");
+                        } catch (IOException ex) {
+                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                    }
+                });
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void removeFocusOnTextField() {
+        Scene scene = iteration.getScene();
+        scene.setOnMousePressed(event -> {
+            if (!iteration.equals(event.getSource())) {
+                iteration.getParent().requestFocus();
+            }
+        });
+    }
+    public void malikPeronaFilter() throws IOException{
+        try {
+            if(imageSourceIsSetted()){
+                hideShowSeuilInfos(true);
+                hideShowIterationInfos(true);
+                applyFilterButton.setVisible(true);
+                setSliderValueFormat("%.2f");
+                seuilSlider.setValue(0.0);
+                iteration.setText("");
+                warningLabel.setText("Diffusion Anistrope: Malik & Perona");
+                removeFocusOnTextField();
+                applyFilterButton.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        try {
+                            resetSourceImage();
+                            setImageResult(malikPerona.run(selectedImage, Integer.parseInt(iteration.getText()), seuilSlider.getValue()), "Malik & Perona avec "+iteration.getText()+" itération");
                         } catch (IOException ex) {
                             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                         }

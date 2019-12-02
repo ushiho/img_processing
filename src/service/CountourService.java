@@ -89,6 +89,7 @@ public class CountourService {
         int width = copy.getWidth();
         int height = copy.getHeight();
         double[][] edgeColors = new double[width - 2][height - 2];
+        System.out.println("In calculate Iy");
         for (int i = 1; i < width - 1; i++) {
             for (int j = 1; j < height - 1; j++) {
                 double[][] neighborPixel = {
@@ -99,6 +100,7 @@ public class CountourService {
                 
                 double gy =  filterDeriveIy(neighborPixel);
                 edgeColors[i - 1][j - 1] = gy;
+                System.out.println("Iy = "+gy);
             }
         }
         return edgeColors;
@@ -109,6 +111,7 @@ public class CountourService {
         int width = copy.getWidth();
         int height = copy.getHeight();
         double[][] edgeColors = new double[width - 2][height - 2];
+        System.out.println("In calculate Iy");
         for (int i = 1; i < width - 1; i++) {
             for (int j = 1; j < height - 1; j++) {
                 double[][] neighborPixel = {
@@ -118,6 +121,7 @@ public class CountourService {
                 };
                 double gx = filterDeriveIx(neighborPixel);
                 edgeColors[i - 1][j - 1] = gx;
+                System.out.println("Ix = "+gx);
             }
         }
         return edgeColors;
