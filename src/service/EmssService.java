@@ -17,7 +17,7 @@ public class EmssService {
     ImageService imageService = new ImageService();
     HeatEquationService heatEquationService = new HeatEquationService();
     
-    private final double dt = 0.25;
+    private final double dt = 0.1;
     double[][] Ixy = {{0.25, 0, 0.25}, {0, 0, 0}, {-0.25, 0, 0.25}};
     double[][] Ix =  {{0.1464466, 0.0, -0.1464466},{0.2071067, 0.0, -0.2071067},{0.1464466, 0.0, -0.1464466}};
     double[][] Iy =  {{0.1464466, 0.2071067, 0.1464466},{0.0, 0.0, 0.0},{-0.1464466, -0.2071067, -0.1464466}};
@@ -54,7 +54,12 @@ public class EmssService {
                     d_Ixx = calculateDerive(Ixx, neighborPixel);
                     d_Iyy = calculateDerive(Iyy, neighborPixel);
                     res = (d_Iy * d_Iy * d_Ixx - 2 * d_Ix * d_Iy * d_Ixy + d_Ix * d_Ix * d_Iyy) / (d_Ix * d_Ix + d_Iy * d_Iy);
-                    result[i - 1][j - 1] += dt * res;
+//                    System.out.println("res =  "+res);
+//                    if(res > 0 && res < 255){
+                        result[i - 1][j - 1] += dt * Math.abs(res);
+                        System.out.println("result["+i+"]["+j+"] = "+result[i-1][j-1]);
+//                    }
+//                        continue;
                 }
             }
         }

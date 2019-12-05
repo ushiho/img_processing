@@ -60,14 +60,14 @@
                   <MenuItem mnemonicParsing="false" onAction="#gaussianBlur" text="Gaussian blur" />
                </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Analyse Multi-échelle">
+            <Menu mnemonicParsing="false" text="Diffusion Isotrope">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#heatFilter" text="Fonction de la chaleur" />
-                  <MenuItem mnemonicParsing="false" onAction="#emssFilter" text="EMSS" />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Diffusion Anistrope">
                <items>
+                  <MenuItem mnemonicParsing="false" onAction="#emssFilter" text="EMSS" />
                   <MenuItem mnemonicParsing="false" onAction="#malikPeronaFilter" text="Malik &amp; Perona" />
                </items>
             </Menu>

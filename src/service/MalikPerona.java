@@ -35,13 +35,11 @@ public class MalikPerona {
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {
                     res = result[i][j] + dt*compute(inputImage, i, j);
-//                    if(res >= 255){
-//                        res = compensePixel(inputImage, i, j);
+//                    if(res >= 255 ){
+//                        res -= res*seuil;
 //                    }else if(res <= 0){
-//                        System.out.println("Avvant i = "+i+" & j = "+j+" et res = "+res);
-//                        res = compensePixel(inputImage, i, j);
-//                        System.out.println("Apres i = "+i+" & j = "+j+" et res = "+res);
-//                    }
+//                        res += res*seuil;
+//                    } 
                     result[i][j] = res;
 //                    result[i][j] = Math.abs(res);
                     res = 0.0;
