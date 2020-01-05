@@ -13,9 +13,9 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="463.0" prefWidth="904.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ImageViewController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="537.0" prefWidth="973.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ImageViewController">
    <children>
-      <MenuBar layoutY="-3.0" prefHeight="29.0" prefWidth="904.0">
+      <MenuBar layoutY="-3.0" prefHeight="29.0" prefWidth="973.0">
          <menus>
             <Menu mnemonicParsing="false" text="File">
                <items>
@@ -78,48 +78,78 @@
             </Menu>
          </menus>
       </MenuBar>
-      <HBox fx:id="sourceHBox" layoutX="14.0" layoutY="71.0" onDragDropped="#handleOnDragDropped" onDragExited="#handleOnDragExited" onDragOver="#handleOnDragOver" onMouseDragOver="#handleOnDragOver" prefHeight="290.0" prefWidth="360.0" style="-fx-background-color: #d1e0d5; -fx-border-color: #C6C6C6;">
+      <HBox fx:id="sourceHBox" alignment="CENTER" layoutX="14.0" layoutY="111.0" onDragDropped="#handleOnDragDropped" onDragExited="#handleOnDragExited" onDragOver="#handleOnDragOver" onMouseDragOver="#handleOnDragOver" prefHeight="350.0" prefWidth="400.0" style="-fx-background-color: #d1e0d5; -fx-border-color: #C6C6C6;">
          <children>
-            <ImageView fx:id="imageSource" fitHeight="290.0" fitWidth="360.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imageSource" fitHeight="350.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
          </children>
       </HBox>
-      <HBox layoutX="528.0" layoutY="71.0" prefHeight="290.0" prefWidth="360.0" style="-fx-background-color: #d1e0d5; -fx-border-color: #C6C6C6;">
+      <HBox alignment="CENTER" layoutX="560.0" layoutY="111.0" prefHeight="350.0" prefWidth="400.0" style="-fx-background-color: #d1e0d5; -fx-border-color: #C6C6C6;">
          <children>
-            <ImageView fx:id="imageResult" fitHeight="290.0" fitWidth="360.0" pickOnBounds="true" preserveRatio="true" />
+            <ImageView fx:id="imageResult" fitHeight="350.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
          </children>
       </HBox>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="106.0" layoutY="382.0" prefHeight="29.0" prefWidth="179.0" text="Image source" textAlignment="CENTER">
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="126.0" layoutY="69.0" prefHeight="29.0" prefWidth="179.0" style="-fx-font-weight: bold;" text="Image source" textAlignment="CENTER">
          <font>
             <Font name="Liberation Serif" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="previewLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="533.0" layoutY="383.0" prefHeight="29.0" prefWidth="352.0" textAlignment="CENTER">
+      <Label fx:id="previewLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="585.0" layoutY="69.0" prefHeight="29.0" prefWidth="352.0" textAlignment="CENTER">
          <font>
             <Font name="Liberation Serif" size="16.0" />
          </font>
       </Label>
-      <Label fx:id="warningLabel" alignment="CENTER" layoutX="230.0" layoutY="36.0" prefHeight="19.0" prefWidth="446.0">
+      <Label fx:id="warningLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="261.0" layoutY="26.0" prefHeight="55.0" prefWidth="451.0" textAlignment="CENTER" underline="true">
          <font>
             <Font name="Liberation Serif" size="17.0" />
          </font>
       </Label>
-      <Label fx:id="seuilLevel" alignment="CENTER" layoutX="417.0" layoutY="250.0" prefHeight="19.0" prefWidth="69.0" text="0.0">
+      <Label fx:id="seuilLevel" alignment="CENTER" layoutX="449.0" layoutY="290.0" prefHeight="19.0" prefWidth="69.0" text="0.0">
          <font>
             <Font name="Liberation Serif" size="16.0" />
          </font>
       </Label>
-      <Button fx:id="applyFilterButton" layoutX="399.0" layoutY="423.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" style="-fx-cursor: hand;" text="Appliquer" />
-      <Label fx:id="iterationLabel" alignment="CENTER" layoutX="376.0" layoutY="351.0" prefHeight="25.0" prefWidth="152.0" text="Nombre Itération">
+      <Button fx:id="applyFilterButton" layoutX="433.0" layoutY="437.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" style="-fx-cursor: hand;" text="Appliquer" />
+      <Label fx:id="iterationLabel" alignment="CENTER" layoutX="408.0" layoutY="359.0" prefHeight="25.0" prefWidth="152.0" text="Nombre Itération">
          <font>
             <Font name="Liberation Serif" size="16.0" />
          </font>
       </Label>
-      <TextField fx:id="iteration" alignment="CENTER" layoutX="392.0" layoutY="384.0" prefHeight="26.0" prefWidth="122.0" />
-      <Label fx:id="seuilLabel" alignment="CENTER" layoutX="376.0" layoutY="71.0" prefHeight="25.0" prefWidth="152.0" text="Seuil">
+      <TextField fx:id="iteration" alignment="CENTER" layoutX="423.0" layoutY="395.0" prefHeight="26.0" prefWidth="122.0" />
+      <Label fx:id="seuilLabel" alignment="CENTER" layoutX="408.0" layoutY="111.0" prefHeight="25.0" prefWidth="152.0" text="Seuil">
          <font>
             <Font name="Liberation Serif" size="16.0" />
          </font>
       </Label>
-      <Slider fx:id="seuilSlider" layoutX="444.0" layoutY="96.0" max="1.0" orientation="VERTICAL" />
+      <Slider fx:id="seuilSlider" layoutX="476.0" layoutY="136.0" max="1.0" orientation="VERTICAL" style="-fx-cursor: hand;" />
+      <Pane fx:id="zoomSrcPane" layoutX="42.0" layoutY="463.0" prefHeight="41.0" prefWidth="326.0">
+         <children>
+            <Slider fx:id="zoomSrcSlider" layoutX="71.0" layoutY="6.0" max="4.0" min="1.0" prefHeight="15.0" prefWidth="185.0" showTickLabels="true" style="-fx-cursor: hand;" />
+            <Label layoutX="14.0" layoutY="4.0" prefHeight="19.0" prefWidth="52.0" text="Zoom">
+               <font>
+                  <Font name="Liberation Serif" size="16.0" />
+               </font>
+            </Label>
+            <Label fx:id="zoomSrcValue" layoutX="256.0" layoutY="3.0" prefHeight="19.0" prefWidth="30.0" text="x1">
+               <font>
+                  <Font name="Liberation Serif" size="16.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      <Pane fx:id="zoomResPane" layoutX="598.0" layoutY="463.0" prefHeight="41.0" prefWidth="326.0">
+         <children>
+            <Slider fx:id="zoomResSlider" layoutX="71.0" layoutY="6.0" max="4.0" min="1.0" prefHeight="15.0" prefWidth="185.0" showTickLabels="true" style="-fx-cursor: hand;" />
+            <Label layoutX="14.0" layoutY="4.0" prefHeight="19.0" prefWidth="52.0" text="Zoom">
+               <font>
+                  <Font name="Liberation Serif" size="16.0" />
+               </font>
+            </Label>
+            <Label fx:id="zoomResValue" layoutX="256.0" layoutY="3.0" prefHeight="19.0" prefWidth="30.0" text="x1">
+               <font>
+                  <Font name="Liberation Serif" size="16.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
    </children>
 </Pane>
