@@ -51,6 +51,7 @@ import service.MalikPerona;
 import service.PrewittService;
 import service.SobelService;
 import service.ZoomService;
+import service.JFXToast;
 
 /*import javafx.stage.Stage;
 *
@@ -74,8 +75,6 @@ public class ImageViewController implements Initializable {
     protected int width = 0;
     protected int height = 0;
     ObjectProperty<Point2D> mouseDown = new SimpleObjectProperty<>();
-    private double initx;
-    private double inity;
     private static final int MIN_PIXELS = 10;
     @FXML
     private ImageView imageSource;
@@ -87,8 +86,6 @@ public class ImageViewController implements Initializable {
     private Label warningLabel;
     @FXML
     private HBox sourceHBox;
-    @FXML
-    private ProgressIndicator progressIndicator;
     @FXML
     private Slider seuilSlider;
     @FXML
@@ -193,25 +190,28 @@ public class ImageViewController implements Initializable {
         });
         
         imageView.setOnScroll(e -> {
-            if(imageView.getViewport() != null){
-                double delta = e.getDeltaY();
-                Rectangle2D viewport = imageView.getViewport();
-                double scale = zoomService.clamp(Math.pow(1.01, delta),
-                        Math.min(MIN_PIXELS / viewport.getWidth(), MIN_PIXELS / viewport.getHeight()),
-                        Math.max(width / viewport.getWidth(), height / viewport.getHeight())
-                );
-
-                Point2D mouse = zoomService.imageViewToImage(imageView, new Point2D(e.getX(), e.getY()));
-
-                double newWidth = viewport.getWidth() * scale;
-                double newHeight = viewport.getHeight() * scale;
-                double newMinX = zoomService.clamp(mouse.getX() - (mouse.getX() - viewport.getMinX()) * scale, 
-                        0, width - newWidth);
-                double newMinY = zoomService.clamp(mouse.getY() - (mouse.getY() - viewport.getMinY()) * scale, 
-                        0, height - newHeight);
-
-                imageView.setViewport(new Rectangle2D(newMinX, newMinY, newWidth, newHeight));
+            if(imageView.getViewport() == null){
+                imageView.setViewport(new Rectangle2D(width, height, width, height));
             }
+            double delta = e.getDeltaY();
+            Rectangle2D viewport = imageView.getViewport();
+            double scale = zoomService.clamp(Math.pow(1.01, delta),
+                    Math.min(MIN_PIXELS / viewport.getWidth(), MIN_PIXELS / viewport.getHeight()),
+                    Math.max(width / viewport.getWidth(), height / viewport.getHeight())
+            );
+
+            Point2D mouse = zoomService.imageViewToImage(imageView, new Point2D(e.getX(), e.getY()));
+
+            double newWidth = viewport.getWidth() * scale;
+            double newHeight = viewport.getHeight() * scale;
+            double newMinX = zoomService.clamp(mouse.getX() - (mouse.getX() - viewport.getMinX()) * scale, 
+                    0, width - newWidth);
+            double newMinY = zoomService.clamp(mouse.getY() - (mouse.getY() - viewport.getMinY()) * scale, 
+                    0, height - newHeight);
+
+            imageView.setViewport(new Rectangle2D(newMinX, newMinY, newWidth, newHeight));
+            zoomLabel.setText("x"+scale);
+            System.out.println("scale = "+scale);
         });
 
         imageView.setOnMouseClicked(e -> {
@@ -221,7 +221,7 @@ public class ImageViewController implements Initializable {
                 zoom.setValue(1);
             }});
     }
-
+    
     public String getSliderValueFormat() {
         if(sliderValueFormat == null || sliderValueFormat.equals("")){
             sliderValueFormat = "%.2f";
@@ -232,7 +232,7 @@ public class ImageViewController implements Initializable {
     public void setSliderValueFormat(String sliderValueFormat) {
         this.sliderValueFormat = sliderValueFormat;
     }
-    
+
     public void hideShowSeuilInfos(boolean state) {
         seuilSlider.setVisible(state);
         seuilLevel.setVisible(state);
@@ -395,12 +395,11 @@ public class ImageViewController implements Initializable {
         }
     }
     
-    
     // Begin Filter Functions 
-    
     public void sobel() throws IOException{
         try {
             if(imageSourceIsSetted()){
+                Stage stage = (Stage) imageSource.getScene().getWindow();
                 resetSourceImage();
                 setSliderValueFormat("%.2f");
                 seuilSlider.setValue(0.0);
@@ -414,6 +413,7 @@ public class ImageViewController implements Initializable {
                     public void handle(ActionEvent event) {
                         try {
                             setImageResult(sobelService.sobel(selectedImage, seuilSlider.getValue()), "Sobel");
+                            JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
                         } catch (IOException ex) {
                             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                         }
