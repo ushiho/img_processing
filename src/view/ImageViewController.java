@@ -43,6 +43,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
+import service.EMSS;
 import service.EmssService;
 import service.GaussianBlurService;
 import service.HeatEquationService;
@@ -52,6 +53,7 @@ import service.PrewittService;
 import service.SobelService;
 import service.ZoomService;
 import service.JFXToast;
+import service.MalikPeronaService;
 
 /*import javafx.stage.Stage;
 *
@@ -67,8 +69,9 @@ public class ImageViewController implements Initializable {
     HeatEquationService heatEquationService = new HeatEquationService();
     GaussianBlurService gaussianBlurService = new GaussianBlurService();
     EmssService emssService = new EmssService();
-    MalikPerona malikPerona = new MalikPerona();
+    MalikPeronaService malikPeronaService = new MalikPeronaService();
     ZoomService zoomService = new ZoomService();
+    EMSS emss = new EMSS();
     private String sliderValueFormat;
     private SelectedImage selectedImage;
     final DoubleProperty zoomProperty = new SimpleDoubleProperty(10);
@@ -98,18 +101,18 @@ public class ImageViewController implements Initializable {
     private Label iterationLabel;
     @FXML
     private Button applyFilterButton;
-    @FXML
-    private Label zoomSrcValue;
-    @FXML
-    private Slider zoomSrcSlider;
-    @FXML
-    private Pane zoomSrcPane;
-    @FXML
-    private Label zoomResValue;
-    @FXML
-    private Slider zoomResSlider;
-    @FXML
-    private Pane zoomResPane;
+//    @FXML
+//    private Label zoomSrcValue;
+//    @FXML
+//    private Slider zoomSrcSlider;
+//    @FXML
+//    private Pane zoomSrcPane;
+//    @FXML
+//    private Label zoomResValue;
+//    @FXML
+//    private Slider zoomResSlider;
+//    @FXML
+//    private Pane zoomResPane;
     
     /**
      * Initializes the controller class.
@@ -139,33 +142,33 @@ public class ImageViewController implements Initializable {
                 }
             }
         });
-        zoomSrcPane.setVisible(false);
-        zoomResPane.setVisible(false);
-        imageViewEventsListener(imageSource, zoomSrcSlider, zoomSrcValue);
-        imageViewEventsListener(imageResult, zoomResSlider, zoomResValue);
+//        zoomSrcPane.setVisible(false);
+//        zoomResPane.setVisible(false);
+        imageViewEventsListener(imageSource);
+        imageViewEventsListener(imageResult);
     }
 
-    public void imageViewEventsListener(ImageView imageView, Slider zoom, Label zoomLabel) {
-        zoom.valueProperty().addListener(e->{
-            double zoomlvl = zoom.getValue();
-            double newValue = (double)((int)(zoomlvl*10))/10;
-            double offSetX = width/2;
-            double offSetY = height/2;
-            zoomLabel.setText("x"+newValue);
-            if(offSetX<(width/newValue)/2) {
-                offSetX = (width/newValue)/2;
-            }
-            if(offSetX>width-((width/newValue)/2)) {
-                offSetX = width-((width/newValue)/2);
-            }
-            if(offSetY<(height/newValue)/2) {
-                offSetY = (height/newValue)/2;
-            }
-            if(offSetY>height-((height/newValue)/2)) {
-                offSetY = height-((height/newValue)/2);
-            }
-            imageView.setViewport(new Rectangle2D(offSetX-((width/newValue)/2), offSetY-((height/newValue)/2), width/newValue, height/newValue));
-        });
+    public void imageViewEventsListener(ImageView imageView) {
+//        zoom.valueProperty().addListener(e->{
+//            double zoomlvl = zoom.getValue();
+//            double newValue = (double)((int)(zoomlvl*10))/10;
+//            double offSetX = width/2;
+//            double offSetY = height/2;
+//            zoomLabel.setText("x"+newValue);
+//            if(offSetX<(width/newValue)/2) {
+//                offSetX = (width/newValue)/2;
+//            }
+//            if(offSetX>width-((width/newValue)/2)) {
+//                offSetX = width-((width/newValue)/2);
+//            }
+//            if(offSetY<(height/newValue)/2) {
+//                offSetY = (height/newValue)/2;
+//            }
+//            if(offSetY>height-((height/newValue)/2)) {
+//                offSetY = height-((height/newValue)/2);
+//            }
+//            imageView.setViewport(new Rectangle2D(offSetX-((width/newValue)/2), offSetY-((height/newValue)/2), width/newValue, height/newValue));
+//        });
 
         imageView.setOnMousePressed(e -> {
             if(imageView.getViewport() != null){
@@ -190,35 +193,37 @@ public class ImageViewController implements Initializable {
         });
         
         imageView.setOnScroll(e -> {
-            if(imageView.getViewport() == null){
-                imageView.setViewport(new Rectangle2D(width, height, width, height));
+            if(imageView.getImage() != null){
+                if(imageView.getViewport() == null){
+                    imageView.setViewport(new Rectangle2D(width, height, width, height));
+                }
+                double delta = e.getDeltaY();
+                Rectangle2D viewport = imageView.getViewport();
+                double scale = zoomService.clamp(Math.pow(1.01, delta),
+                        Math.min(MIN_PIXELS / viewport.getWidth(), MIN_PIXELS / viewport.getHeight()),
+                        Math.max(width / viewport.getWidth(), height / viewport.getHeight())
+                );
+
+                Point2D mouse = zoomService.imageViewToImage(imageView, new Point2D(e.getX(), e.getY()));
+
+                double newWidth = viewport.getWidth() * scale;
+                double newHeight = viewport.getHeight() * scale;
+                double newMinX = zoomService.clamp(mouse.getX() - (mouse.getX() - viewport.getMinX()) * scale, 
+                        0, width - newWidth);
+                double newMinY = zoomService.clamp(mouse.getY() - (mouse.getY() - viewport.getMinY()) * scale, 
+                        0, height - newHeight);
+
+                imageView.setViewport(new Rectangle2D(newMinX, newMinY, newWidth, newHeight));
+    //            zoomLabel.setText("x"+scale);
+                System.out.println("scale = "+scale);
             }
-            double delta = e.getDeltaY();
-            Rectangle2D viewport = imageView.getViewport();
-            double scale = zoomService.clamp(Math.pow(1.01, delta),
-                    Math.min(MIN_PIXELS / viewport.getWidth(), MIN_PIXELS / viewport.getHeight()),
-                    Math.max(width / viewport.getWidth(), height / viewport.getHeight())
-            );
-
-            Point2D mouse = zoomService.imageViewToImage(imageView, new Point2D(e.getX(), e.getY()));
-
-            double newWidth = viewport.getWidth() * scale;
-            double newHeight = viewport.getHeight() * scale;
-            double newMinX = zoomService.clamp(mouse.getX() - (mouse.getX() - viewport.getMinX()) * scale, 
-                    0, width - newWidth);
-            double newMinY = zoomService.clamp(mouse.getY() - (mouse.getY() - viewport.getMinY()) * scale, 
-                    0, height - newHeight);
-
-            imageView.setViewport(new Rectangle2D(newMinX, newMinY, newWidth, newHeight));
-            zoomLabel.setText("x"+scale);
-            System.out.println("scale = "+scale);
         });
 
         imageView.setOnMouseClicked(e -> {
             if (imageView.getViewport() != null && e.getClickCount() == 2) {
                 zoomService.reset(imageView, width, height);
-                zoomLabel.setText("x1");
-                zoom.setValue(1);
+//                zoomLabel.setText("x1");
+//                zoom.setValue(1);
             }});
     }
     
@@ -270,7 +275,7 @@ public class ImageViewController implements Initializable {
             Image source = new Image(new FileInputStream(getSelectedImage().getFile()));
             calculateWidthAndHeight(source);
             imageSource.setImage(new Image(getSelectedImage().getFile().toURI().toString(), width, height, false, false));
-            zoomSrcPane.setVisible(true);
+//            zoomSrcPane.setVisible(true);
         }
     }
 
@@ -301,8 +306,8 @@ public class ImageViewController implements Initializable {
             applyFilterButton.setVisible(false);
             warningLabel.setText("");
             iteration.setText("");
-            zoomSrcPane.setVisible(false);
-            zoomResPane.setVisible(false);
+//            zoomSrcPane.setVisible(false);
+//            zoomResPane.setVisible(false);
         }
     }
     
@@ -318,7 +323,7 @@ public class ImageViewController implements Initializable {
             imageResult.setImage(new Image(imageService.getResultFile().toURI().toString(), width, height, false, false));
             previewLabel.setText("Aperçu: "+processName);
             previewLabel.setStyle("-fx-font-weight: bold");
-            zoomResPane.setVisible(true);
+//            zoomResPane.setVisible(true);
         }else{
             previewLabel.setText("Some Error is occured!");
         }
@@ -433,11 +438,13 @@ public class ImageViewController implements Initializable {
     public void  sobelIy() throws IOException{
         try {
             if(imageSourceIsSetted()){
+                Stage stage = (Stage) imageSource.getScene().getWindow();
                 warningLabel.setText("Doctrine classique: derivée Sobel suivant Y");
                 hideShowSeuilInfos(false);
                 resetSourceImage();
                 setImageResult(sobelService.sobelIY(selectedImage), "Sobel (Iy)");
                 applyFilterButton.setVisible(false);
+                JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
             }
         } catch (Exception ex) {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
@@ -447,11 +454,13 @@ public class ImageViewController implements Initializable {
     public void sobelIx() throws IOException{
         try {
             if(imageSourceIsSetted()){
+                Stage stage = (Stage) imageSource.getScene().getWindow();
                 warningLabel.setText("Doctrine classique: derivée Sobel suivant X");
                 hideShowSeuilInfos(false);
                 resetSourceImage();
                 setImageResult(sobelService.sobelIX(selectedImage), "Sobel (Ix)");
                 applyFilterButton.setVisible(false);
+                JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
             }
         } catch (Exception ex) {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
@@ -461,6 +470,7 @@ public class ImageViewController implements Initializable {
     public void prewitt() throws IOException{
         try {
             if(imageSourceIsSetted()){
+                Stage stage = (Stage) imageSource.getScene().getWindow();
                 resetSourceImage();
                 setSliderValueFormat("%.2f");
                 seuilSlider.setValue(0.0);
@@ -475,6 +485,7 @@ public class ImageViewController implements Initializable {
                         try {
                             setImageResult(prewittService.prewitt(selectedImage, seuilSlider.getValue()), "Prewitt");
                             applyFilterButton.setDisable(true);
+                            JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
                         } catch (IOException ex) {
                             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -490,11 +501,13 @@ public class ImageViewController implements Initializable {
     public void  prewittIy() throws IOException{
         try {
             if(imageSourceIsSetted()){
+                Stage stage = (Stage) imageSource.getScene().getWindow();
                 warningLabel.setText("Doctrine classique: derivée Prewitt suivant Y");
                 hideShowSeuilInfos(false);
                 resetSourceImage();
                 setImageResult(prewittService.prewittIY(selectedImage), "Prewitt (Iy)");
                 applyFilterButton.setVisible(false);
+                JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
             }
         } catch (Exception ex) {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
@@ -503,12 +516,14 @@ public class ImageViewController implements Initializable {
     
     public void prewittIx() throws IOException{
         try {
+            Stage stage = (Stage) imageSource.getScene().getWindow();
             warningLabel.setText("Doctrine classique: derivée Prewitt suivant X");
             if(imageSourceIsSetted()){
                 hideShowSeuilInfos(false);
                 resetSourceImage();
                 setImageResult(prewittService.prewittIX(selectedImage), "Prewitt (Ix)");
                 applyFilterButton.setVisible(false);
+                JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
             }
         } catch (Exception ex) {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
@@ -518,39 +533,46 @@ public class ImageViewController implements Initializable {
     public void heatFilter() throws IOException{
         try {
             if(imageSourceIsSetted()){
+                Stage stage = (Stage) imageSource.getScene().getWindow();
                 hideShowSeuilInfos(false);
                 hideShowIterationInfos(true);
                 applyFilterButton.setVisible(true);
                 applyFilterButton.setDisable(false);
                 iteration.setText("");
                 warningLabel.setText("Analyse Multi-échelle: Fonction de la chaleur");
-                applyFilterButton.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                        try {
-                            if(!iteration.getText().equals("")){
-                                resetSourceImage();
-                                setImageResult(heatEquationService.run(selectedImage, Integer.parseInt(iteration.getText())), "Fonction de la chaleur avec "+iteration.getText()+" itération");
-                                applyFilterButton.setDisable(true);
-                                warningLabel.setText("Analyse Multi-échelle: Fonction de la chaleur");
-                            }else{
-                                warningLabel.setText(warningLabel.getText()+"\nDonner le nombre d'itération");
-                            }
-                        } catch (IOException ex) {
-                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        
-                    }
-                });
+                applyFilterButton.setOnAction(handleHealthEvent(stage));
+                iteration.setOnAction(handleHealthEvent(stage));
             }
         } catch (Exception ex) {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    public EventHandler<ActionEvent> handleHealthEvent(Stage stage) {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    if(!iteration.getText().equals("")){
+                        resetSourceImage();
+                        setImageResult(heatEquationService.run(selectedImage, Integer.parseInt(iteration.getText())), "Fonction de chaleur avec "+iteration.getText()+" itération");
+                        applyFilterButton.setDisable(true);
+                        JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
+                    }else{
+                        JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", JFXToast.LONG, JFXToast.CENTTER);
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
+        };
+    }
     
     public void  gaussianBlur() throws IOException{
         try {
             if(imageSourceIsSetted()){
+                Stage stage = (Stage) imageSource.getScene().getWindow();
                 warningLabel.setText("Doctrine classique: Gaussian blur");
                 hideShowSeuilInfos(false);
                 resetSourceImage();
@@ -564,28 +586,40 @@ public class ImageViewController implements Initializable {
     public void emssFilter() throws IOException{
         try {
             if(imageSourceIsSetted()){
+                Stage stage = (Stage) imageSource.getScene().getWindow();
                 hideShowSeuilInfos(false);
                 hideShowIterationInfos(true);
                 applyFilterButton.setVisible(true);
                 iteration.setText("");
                 removeFocusOnTextField();
                 warningLabel.setText("Analyse Multi-échelle: EMSS");
-                applyFilterButton.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                        try {
-                            resetSourceImage();
-                            setImageResult(emssService.run(selectedImage, Integer.parseInt(iteration.getText())), "EMSS avec "+iteration.getText()+" itération");
-                        } catch (IOException ex) {
-                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        
-                    }
-                });
+                applyFilterButton.setOnAction(handleEMSSEvent(stage));
+                iteration.setOnAction(handleEMSSEvent(stage));
             }
         } catch (Exception ex) {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public EventHandler<ActionEvent> handleEMSSEvent(Stage stage) {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    if(!iteration.getText().equals("")){
+                        resetSourceImage();
+                        setImageResult(emss.run(selectedImage, Integer.parseInt(iteration.getText())), "EMSS avec "+iteration.getText()+" itérations");
+                        applyFilterButton.setDisable(true);
+                        JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
+                    }else{
+                        JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", JFXToast.LONG, JFXToast.CENTTER);
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
+        };
     }
 
     public void removeFocusOnTextField() {
@@ -599,32 +633,39 @@ public class ImageViewController implements Initializable {
     public void malikPeronaFilter() throws IOException{
         try {
             if(imageSourceIsSetted()){
-                hideShowSeuilInfos(true);
+                Stage stage = (Stage) imageSource.getScene().getWindow();
+                hideShowSeuilInfos(false);
                 hideShowIterationInfos(true);
                 applyFilterButton.setVisible(true);
-                setSliderValueFormat("%.2f");
-                seuilSlider.setValue(0.0);
                 iteration.setText("");
                 warningLabel.setText("Diffusion Anistrope: Malik & Perona");
                 removeFocusOnTextField();
-                applyFilterButton.setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                        try {
-                            resetSourceImage();
-                            setImageResult(malikPerona.run(selectedImage, Integer.parseInt(iteration.getText()), seuilSlider.getValue()), "Malik & Perona avec "+iteration.getText()+" itération");
-                        } catch (IOException ex) {
-                            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                        
-                    }
-                });
+                applyFilterButton.setOnAction(handleMalikPeronaEvent(stage));
+                iteration.setOnAction(handleMalikPeronaEvent(stage));
             }
         } catch (Exception ex) {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    // End Filter Functions
-   
+    public EventHandler<ActionEvent> handleMalikPeronaEvent(Stage stage) {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    if(!iteration.getText().equals("")){
+                        resetSourceImage();
+                        setImageResult(malikPeronaService.run(selectedImage, Integer.parseInt(iteration.getText())), "EMSS avec "+iteration.getText()+" itérations");
+                        applyFilterButton.setDisable(true);
+                        JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
+                    }else{
+                        JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", JFXToast.LONG, JFXToast.CENTTER);
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
+        };
+    }   
 }
