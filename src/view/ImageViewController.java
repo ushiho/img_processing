@@ -404,7 +404,7 @@ public class ImageViewController implements Initializable {
         if(imageResult.getImage() == null){
             warningLabel.setText("Aucun filtre n'est appliqué pour enregistrer vos tests.");
         }else{
-            imageService.saveImage(SwingFXUtils.fromFXImage(imageResult.getImage(), null));
+            imageService.saveImage(imageResult, (Stage) previewLabel.getScene().getWindow());
         }
     }
     

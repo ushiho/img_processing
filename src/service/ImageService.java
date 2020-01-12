@@ -12,8 +12,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 import bean.SelectedImage;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.ImageView;
 
 /**
  *
@@ -62,9 +64,14 @@ public class ImageService {
         return new File("output/result.png");
     }
     
-    public boolean saveImage(BufferedImage image) throws IOException{
-        File outputFile = new File("save/"+(new SimpleDateFormat("yyyyMMddHHmm'.png'").format(new Date())));
-        return ImageIO.write(image, "png", outputFile);
+    public void saveImage(ImageView imageView, Stage primaryStage) throws IOException{
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Image");
+
+        File file = fileChooser.showSaveDialog(primaryStage);
+        if (file != null) {
+            ImageIO.write(SwingFXUtils.fromFXImage(imageView.getImage(),null), "png", file);
+        }
     }
     
     public BufferedImage duplicateSrcBufferedImage(BufferedImage input){
