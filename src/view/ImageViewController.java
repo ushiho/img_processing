@@ -39,6 +39,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import service.AlvarezMorelService;
@@ -47,11 +48,13 @@ import service.EmssServiceDiverge;
 import service.GaussianBlurService;
 import service.HeatEquationService;
 import service.ImageService;
+import service.JFXProgressIndicator;
 import service.PrewittService;
 import service.SobelService;
 import service.ZoomService;
 import service.JFXToast;
 import service.MalikPeronaService;
+import service.OsherRudinService;
 
 /*import javafx.stage.Stage;
 *
@@ -71,6 +74,7 @@ public class ImageViewController implements Initializable {
     ZoomService zoomService = new ZoomService();
     EmssService emss = new EmssService();
     AlvarezMorelService alvarezMorelService = new AlvarezMorelService();
+    OsherRudinService osherRudinService = new OsherRudinService();
     private String sliderValueFormat;
     private SelectedImage selectedImage;
     final DoubleProperty zoomProperty = new SimpleDoubleProperty(10);
@@ -100,6 +104,8 @@ public class ImageViewController implements Initializable {
     private Label iterationLabel;
     @FXML
     private Button applyFilterButton;
+    @FXML
+    private ProgressIndicator progressIndicator;
 //    @FXML
 //    private Label zoomSrcValue;
 //    @FXML
@@ -121,6 +127,7 @@ public class ImageViewController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        progressIndicator.setVisible(false);
         hideShowSeuilInfos(false);
         hideShowIterationInfos(false);
         applyFilterButton.setVisible(false);
@@ -699,6 +706,47 @@ public class ImageViewController implements Initializable {
                         JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", JFXToast.LONG, JFXToast.CENTTER);
                     }
                 } catch (IOException ex) {
+                    Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
+        };
+    }
+    
+    public void osherRudinFilter(){
+        try {
+            if(imageSourceIsSetted()){
+                Stage stage = (Stage) imageSource.getScene().getWindow();
+                hideShowSeuilInfos(false);
+                hideShowIterationInfos(true);
+                applyFilterButton.setVisible(true);
+                iteration.setText("");
+                removeFocusOnTextField();
+                warningLabel.setText("Analyse Multi-échelle: Osher-Rudin");
+                applyFilterButton.setOnAction(handleOsherRudinEvent(stage));
+                iteration.setOnAction(handleOsherRudinEvent(stage));
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public EventHandler<ActionEvent> handleOsherRudinEvent(Stage stage) {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    if(!iteration.getText().equals("")){
+                        resetSourceImage();
+                        setImageResult(osherRudinService.run(selectedImage, Integer.parseInt(iteration.getText()), stage), "Osher-Rudin avec "+iteration.getText()+" itérations");
+                        applyFilterButton.setDisable(true);
+                        JFXToast.makeText(stage, "Traitement Terminé", 500, JFXToast.CENTTER);
+//                        progressIndicator.setVisible(false);
+                    }else{
+                        JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", 500, JFXToast.CENTTER);
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
                     Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 
