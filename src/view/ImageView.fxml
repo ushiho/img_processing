@@ -5,7 +5,6 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
@@ -74,6 +73,11 @@
                   <MenuItem mnemonicParsing="false" onAction="#osherRudinFilter" text="Osher &amp; Rudin" />
                </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Traitement Couleur">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#sapiroFilter" text="Sapiro" />
+              </items>
+            </Menu>
             <Menu mnemonicParsing="false" text="Aidez-moi">
                <items>
                   <MenuItem mnemonicParsing="false" text="A propos" />
@@ -124,6 +128,5 @@
          </font>
       </Label>
       <Slider fx:id="seuilSlider" layoutX="476.0" layoutY="136.0" max="1.0" orientation="VERTICAL" style="-fx-cursor: hand;" />
-      <ProgressIndicator fx:id="progressIndicator" layoutX="466.0" layoutY="188.0" prefHeight="36.0" prefWidth="37.0" />
    </children>
 </Pane>

@@ -55,6 +55,7 @@ import service.ZoomService;
 import service.JFXToast;
 import service.MalikPeronaService;
 import service.OsherRudinService;
+import service.SapiroService;
 
 /*import javafx.stage.Stage;
 *
@@ -75,6 +76,7 @@ public class ImageViewController implements Initializable {
     EmssService emss = new EmssService();
     AlvarezMorelService alvarezMorelService = new AlvarezMorelService();
     OsherRudinService osherRudinService = new OsherRudinService();
+    SapiroService sapiroService = new SapiroService();
     private String sliderValueFormat;
     private SelectedImage selectedImage;
     final DoubleProperty zoomProperty = new SimpleDoubleProperty(10);
@@ -104,8 +106,8 @@ public class ImageViewController implements Initializable {
     private Label iterationLabel;
     @FXML
     private Button applyFilterButton;
-    @FXML
-    private ProgressIndicator progressIndicator;
+//    @FXML
+//    private ProgressIndicator progressIndicator;
 //    @FXML
 //    private Label zoomSrcValue;
 //    @FXML
@@ -127,7 +129,7 @@ public class ImageViewController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        progressIndicator.setVisible(false);
+//        progressIndicator.setVisible(false);
         hideShowSeuilInfos(false);
         hideShowIterationInfos(false);
         applyFilterButton.setVisible(false);
@@ -750,6 +752,43 @@ public class ImageViewController implements Initializable {
                     Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 
+            }
+        };
+    }
+    
+    public void sapiroFilter(){
+        try {
+            if(imageSourceIsSetted()){
+                Stage stage = (Stage) imageSource.getScene().getWindow();
+                hideShowSeuilInfos(false);
+                hideShowIterationInfos(true);
+                applyFilterButton.setVisible(true);
+                iteration.setText("");
+                removeFocusOnTextField();
+                warningLabel.setText("Cas Couleur: Sapiro");
+                applyFilterButton.setOnAction(handleSapiroEvent(stage));
+                iteration.setOnAction(handleSapiroEvent(stage));
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public EventHandler<ActionEvent> handleSapiroEvent(Stage stage) {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    if(!iteration.getText().equals("")){
+                        resetSourceImage();
+                        setImageResult(sapiroService.run(selectedImage, Integer.parseInt(iteration.getText())), "Sapiro avec "+iteration.getText()+" itérations");
+                        applyFilterButton.setDisable(true);
+                        JFXToast.makeText(stage, "Traitement Terminé", 500, JFXToast.CENTTER);
+                    }else{
+                        JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", 500, JFXToast.CENTTER);
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         };
     }
