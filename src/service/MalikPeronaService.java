@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import static service.EMSS.output;
+import static service.EmssService.output;
 
 
 public class MalikPeronaService {

@@ -69,6 +69,7 @@
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#emssFilter" text="EMSS" />
                   <MenuItem mnemonicParsing="false" onAction="#malikPeronaFilter" text="Malik &amp; Perona" />
+                  <MenuItem mnemonicParsing="false" onAction="#alvarezMorelFilter" text="Alvarez &amp; Morel" />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Aidez-moi">

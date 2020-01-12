@@ -39,16 +39,14 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
-import service.EMSS;
+import service.AlvarezMorelService;
 import service.EmssService;
+import service.EmssServiceDiverge;
 import service.GaussianBlurService;
 import service.HeatEquationService;
 import service.ImageService;
-import service.MalikPerona;
 import service.PrewittService;
 import service.SobelService;
 import service.ZoomService;
@@ -68,10 +66,11 @@ public class ImageViewController implements Initializable {
     ImageService imageService = new ImageService();
     HeatEquationService heatEquationService = new HeatEquationService();
     GaussianBlurService gaussianBlurService = new GaussianBlurService();
-    EmssService emssService = new EmssService();
+    EmssServiceDiverge emssService = new EmssServiceDiverge();
     MalikPeronaService malikPeronaService = new MalikPeronaService();
     ZoomService zoomService = new ZoomService();
-    EMSS emss = new EMSS();
+    EmssService emss = new EmssService();
+    AlvarezMorelService alvarezMorelService = new AlvarezMorelService();
     private String sliderValueFormat;
     private SelectedImage selectedImage;
     final DoubleProperty zoomProperty = new SimpleDoubleProperty(10);
@@ -655,7 +654,7 @@ public class ImageViewController implements Initializable {
                 try {
                     if(!iteration.getText().equals("")){
                         resetSourceImage();
-                        setImageResult(malikPeronaService.run(selectedImage, Integer.parseInt(iteration.getText())), "EMSS avec "+iteration.getText()+" itérations");
+                        setImageResult(malikPeronaService.run(selectedImage, Integer.parseInt(iteration.getText())), "Malik & Perona avec "+iteration.getText()+" itérations");
                         applyFilterButton.setDisable(true);
                         JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
                     }else{
@@ -667,5 +666,43 @@ public class ImageViewController implements Initializable {
                 
             }
         };
-    }   
+    }
+    
+    public void alvarezMorelFilter(){
+        try {
+            if(imageSourceIsSetted()){
+                Stage stage = (Stage) imageSource.getScene().getWindow();
+                hideShowSeuilInfos(false);
+                hideShowIterationInfos(true);
+                applyFilterButton.setVisible(true);
+                iteration.setText("");
+                removeFocusOnTextField();
+                warningLabel.setText("Analyse Multi-échelle: Alvarez-Morel");
+                applyFilterButton.setOnAction(handleAlvarezMorelEvent(stage));
+                iteration.setOnAction(handleAlvarezMorelEvent(stage));
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public EventHandler<ActionEvent> handleAlvarezMorelEvent(Stage stage) {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    if(!iteration.getText().equals("")){
+                        resetSourceImage();
+                        setImageResult(alvarezMorelService.run(selectedImage, Integer.parseInt(iteration.getText())), "Alvarez-Morel avec "+iteration.getText()+" itérations");
+                        applyFilterButton.setDisable(true);
+                        JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
+                    }else{
+                        JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", JFXToast.LONG, JFXToast.CENTTER);
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
+        };
+    }
 }
