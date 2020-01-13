@@ -2,8 +2,8 @@ package util;
 
 import service.*;
 import javafx.scene.Cursor;
+import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -11,6 +11,8 @@ import javafx.scene.shape.Rectangle;
 
 class ResizableRectangle extends Rectangle {
 
+//    private int maxWidth;
+//    private int maxHeight;
     private double rectangleStartX;
     private double rectangleStartY;
     private double mouseClickPozX;
@@ -19,7 +21,7 @@ class ResizableRectangle extends Rectangle {
     private Paint resizerSquareColor = Color.WHITE;
     private Paint rectangleStrokeColor = Color.BLACK;
 
-    ResizableRectangle(double x, double y, double width, double height, HBox group) {
+    ResizableRectangle(double x, double y, double width, double height, Group group, double maxWidth, double maxHeight) {
         super(x,y,width,height);
         group.getChildren().add(this);
         super.setStroke(rectangleStrokeColor);
@@ -43,7 +45,14 @@ class ResizableRectangle extends Rectangle {
             moveRect.getParent().setCursor(Cursor.MOVE);
             mouseClickPozX = event.getX();
             mouseClickPozY = event.getY();
-
+            System.out.println("MaxWidth = "+maxWidth);
+            System.out.println("maxHeight = "+maxHeight);
+            System.out.println("Avant=>in  rectangle constructor: mouseClickPozX = "+mouseClickPozX);
+            System.out.println("Avant=>in  rectangle constructor: mouseClickPozY = "+mouseClickPozY);
+            if(mouseClickPozX > maxWidth) mouseClickPozX = maxWidth;
+            if(mouseClickPozY > maxHeight) mouseClickPozY = maxHeight;
+            System.out.println("Apres=>in  rectangle constructor: mouseClickPozX = "+mouseClickPozX);
+            System.out.println("Apres=>in  rectangle constructor: mouseClickPozY = "+mouseClickPozY);
         });
 
         moveRect.addEventHandler(MouseEvent.MOUSE_RELEASED, event ->
@@ -58,12 +67,13 @@ class ResizableRectangle extends Rectangle {
             double offsetY = event.getY() - mouseClickPozY;
             double newX = super.getX() + offsetX ;
             double newY = super.getY() + offsetY ;
-
-            if (newX >= 0 && newX + super.getWidth() <= super.getParent().getBoundsInLocal().getWidth() ) {
+            System.out.println("newX = "+newX);
+            System.out.println("newY = "+newY);
+            if (newX >= 0 && newX + super.getWidth() < maxWidth ) {
                 super.setX(newX);
             }
 
-            if (newY >= 0 && newY + super.getHeight() <= super.getParent().getBoundsInLocal().getHeight()) {
+            if (newY >= 0 && newY + super.getHeight() < maxHeight) {
                 super.setY(newY);
             }
             mouseClickPozX = event.getX();
@@ -84,7 +94,7 @@ class ResizableRectangle extends Rectangle {
 
     }
 
-    private void makeNWResizerSquare(HBox group) {
+    private void makeNWResizerSquare(Group group) {
         Rectangle squareNW = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
 
         squareNW.xProperty().bind(super.xProperty().subtract(squareNW.widthProperty().divide(2.0)));
@@ -117,7 +127,7 @@ class ResizableRectangle extends Rectangle {
         });
     }
 
-    private void makeCWResizerSquare(HBox group) {
+    private void makeCWResizerSquare(Group group) {
         Rectangle squareCW = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
         squareCW.xProperty().bind(super.xProperty().subtract(squareCW.widthProperty().divide(2.0)));
         squareCW.yProperty().bind(super.yProperty().add(super.heightProperty().divide(2.0).subtract(
@@ -143,7 +153,7 @@ class ResizableRectangle extends Rectangle {
 
     }
 
-    private void makeSWResizerSquare(HBox group) {
+    private void makeSWResizerSquare(Group group) {
         Rectangle squareSW = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
         squareSW.xProperty().bind(super.xProperty().subtract(squareSW.widthProperty().divide(2.0)));
         squareSW.yProperty().bind(super.yProperty().add(super.heightProperty().subtract(
@@ -173,7 +183,7 @@ class ResizableRectangle extends Rectangle {
         });
     }
 
-    private void makeSCResizerSquare(HBox group) {
+    private void makeSCResizerSquare(Group group) {
         Rectangle squareSC = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
 
         squareSC.xProperty().bind(super.xProperty().add(super.widthProperty().divide(2.0).subtract(
@@ -198,7 +208,7 @@ class ResizableRectangle extends Rectangle {
         });
     }
 
-    private void makeSEResizerSquare(HBox group) {
+    private void makeSEResizerSquare(Group group) {
         Rectangle squareSE = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
         squareSE.xProperty().bind(super.xProperty().add(super.widthProperty()).subtract(
                 squareSE.widthProperty().divide(2.0)));
@@ -227,7 +237,7 @@ class ResizableRectangle extends Rectangle {
         });
     }
 
-    private void makeCEResizerSquare(HBox group) {
+    private void makeCEResizerSquare(Group group) {
         Rectangle squareCE = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
         squareCE.xProperty().bind(super.xProperty().add(super.widthProperty()).subtract(
                 squareCE.widthProperty().divide(2.0)));
@@ -250,7 +260,7 @@ class ResizableRectangle extends Rectangle {
         });
     }
 
-    private void makeNEResizerSquare(HBox group){
+    private void makeNEResizerSquare(Group group){
         Rectangle squareNE = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
 
         squareNE.xProperty().bind(super.xProperty().add(super.widthProperty()).subtract(
@@ -282,7 +292,7 @@ class ResizableRectangle extends Rectangle {
         });
     }
 
-    private void makeNCResizerSquare(HBox group){
+    private void makeNCResizerSquare(Group group){
         Rectangle squareNC = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
 
         squareNC.xProperty().bind(super.xProperty().add(super.widthProperty().divide(2.0).subtract(

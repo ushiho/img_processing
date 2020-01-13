@@ -56,7 +56,7 @@ import service.JFXToast;
 import service.MalikPeronaService;
 import service.OsherRudinService;
 import service.SapiroService;
-import util.AreaSelection;
+import util.MainSelectionAndCropService;
 
 /*import javafx.stage.Stage;
 *
@@ -78,12 +78,13 @@ public class ImageViewController implements Initializable {
     AlvarezMorelService alvarezMorelService = new AlvarezMorelService();
     OsherRudinService osherRudinService = new OsherRudinService();
     SapiroService sapiroService = new SapiroService();
-    AreaSelection areaSelection = new AreaSelection();
+    
+    static MainSelectionAndCropService mainSelectionAndCropService = new MainSelectionAndCropService();
     private String sliderValueFormat;
     private SelectedImage selectedImage;
-    final DoubleProperty zoomProperty = new SimpleDoubleProperty(10);
     protected int width = 0;
     protected int height = 0;
+    private static boolean isAreaSelected;
     ObjectProperty<Point2D> mouseDown = new SimpleObjectProperty<>();
     private static final int MIN_PIXELS = 10;
     @FXML
@@ -118,6 +119,8 @@ public class ImageViewController implements Initializable {
     private Label srcWidth;
     @FXML
     private Label srcHeight;
+    @FXML
+    private Group sourceGroup;
 //    @FXML
 //    private ProgressIndicator progressIndicator;
 //    @FXML
@@ -293,16 +296,20 @@ public class ImageViewController implements Initializable {
         File file = selectedImage.getFile();
         if(file != null){
             resetApp();
-            Image source = new Image(new FileInputStream(file));
-            calculateWidthAndHeight(source);
-            imageSource.setImage(new Image(file.toURI().toString(), width, height, false, false));
+            calculateWidthAndHeight(new Image(file.toURI().toString()));
+            Image source = new Image(file.toURI().toString(), width, height, false, false);
+            imageSource.setImage(source);
 //            zoomSrcPane.setVisible(true);
             sourceInfoPane.setVisible(true);
             resetSrcInfo();
-            srcHeight.setText(height+" px");
-            srcWidth.setText(width+" px");
+            srcHeight.setText(source.getHeight()+" px");
+            srcWidth.setText(source.getWidth()+" px");
             srcName.setText(file.getName());
             srcSize.setText(file.length() / 1024+ " Kb");
+            mainSelectionAndCropService.setGroup(sourceGroup);
+            mainSelectionAndCropService.setIsAreaSelected(isAreaSelected);
+            mainSelectionAndCropService.setMainImageView(imageSource);
+            mainSelectionAndCropService.setMainImage(imageSource.getImage());
         }
     }
 
@@ -310,15 +317,15 @@ public class ImageViewController implements Initializable {
         ImageView image = new ImageView(source);
         double ratio = source.getWidth()/source.getHeight();
         
-        if(350/ratio < 350) {
-            width=350;
-            height=(int) (350/ratio);
+        if(400/ratio < 400) {
+            width=400;
+            height=(int) (400/ratio);
         }else if(350*ratio < 350){
             height=350;
             width=(int) (350*ratio);
         }else {
             height=350;
-            width=350;
+            width=400;
         }
     }
     
@@ -823,6 +830,6 @@ public class ImageViewController implements Initializable {
     
     
     public void selectArea(){
-        areaSelection.selectArea(sourceHBox);
+        mainSelectionAndCropService.selectArea();
     }
 }
