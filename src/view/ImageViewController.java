@@ -37,18 +37,18 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Pane;
 import service.AlvarezMorelService;
 import service.EmssService;
 import service.EmssServiceDiverge;
 import service.GaussianBlurService;
 import service.HeatEquationService;
 import service.ImageService;
-import service.JFXProgressIndicator;
 import service.PrewittService;
 import service.SobelService;
 import service.ZoomService;
@@ -56,6 +56,7 @@ import service.JFXToast;
 import service.MalikPeronaService;
 import service.OsherRudinService;
 import service.SapiroService;
+import util.AreaSelection;
 
 /*import javafx.stage.Stage;
 *
@@ -77,6 +78,7 @@ public class ImageViewController implements Initializable {
     AlvarezMorelService alvarezMorelService = new AlvarezMorelService();
     OsherRudinService osherRudinService = new OsherRudinService();
     SapiroService sapiroService = new SapiroService();
+    AreaSelection areaSelection = new AreaSelection();
     private String sliderValueFormat;
     private SelectedImage selectedImage;
     final DoubleProperty zoomProperty = new SimpleDoubleProperty(10);
@@ -106,6 +108,16 @@ public class ImageViewController implements Initializable {
     private Label iterationLabel;
     @FXML
     private Button applyFilterButton;
+    @FXML
+    private Pane sourceInfoPane;
+    @FXML
+    private Label srcName;
+    @FXML
+    private Label srcSize;
+    @FXML
+    private Label srcWidth;
+    @FXML
+    private Label srcHeight;
 //    @FXML
 //    private ProgressIndicator progressIndicator;
 //    @FXML
@@ -129,10 +141,10 @@ public class ImageViewController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-//        progressIndicator.setVisible(false);
         hideShowSeuilInfos(false);
         hideShowIterationInfos(false);
         applyFilterButton.setVisible(false);
+        sourceInfoPane.setVisible(false);
         seuilSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             seuilLevel.setText(String.format(sliderValueFormat, newValue));
             applyFilterButton.setDisable(false);
@@ -278,12 +290,19 @@ public class ImageViewController implements Initializable {
     }
 
     public void imageSrcToImageView() throws FileNotFoundException {
-        if(getSelectedImage().getFile() != null){
+        File file = selectedImage.getFile();
+        if(file != null){
             resetApp();
-            Image source = new Image(new FileInputStream(getSelectedImage().getFile()));
+            Image source = new Image(new FileInputStream(file));
             calculateWidthAndHeight(source);
-            imageSource.setImage(new Image(getSelectedImage().getFile().toURI().toString(), width, height, false, false));
+            imageSource.setImage(new Image(file.toURI().toString(), width, height, false, false));
 //            zoomSrcPane.setVisible(true);
+            sourceInfoPane.setVisible(true);
+            resetSrcInfo();
+            srcHeight.setText(height+" px");
+            srcWidth.setText(width+" px");
+            srcName.setText(file.getName());
+            srcSize.setText(file.length() / 1024+ " Kb");
         }
     }
 
@@ -314,9 +333,18 @@ public class ImageViewController implements Initializable {
             applyFilterButton.setVisible(false);
             warningLabel.setText("");
             iteration.setText("");
+            resetSrcInfo();
+            sourceInfoPane.setVisible(false);
 //            zoomSrcPane.setVisible(false);
 //            zoomResPane.setVisible(false);
         }
+    }
+    
+    public void resetSrcInfo(){
+        srcHeight.setText("");
+        srcName.setText("");
+        srcSize.setText("");
+        srcWidth.setText("");
     }
     
     public void exitApp(){
@@ -741,7 +769,7 @@ public class ImageViewController implements Initializable {
                         resetSourceImage();
                         setImageResult(osherRudinService.run(selectedImage, Integer.parseInt(iteration.getText()), stage), "Osher-Rudin avec "+iteration.getText()+" itérations");
                         applyFilterButton.setDisable(true);
-                        JFXToast.makeText(stage, "Traitement Terminé", 500, JFXToast.CENTTER);
+                        JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
 //                        progressIndicator.setVisible(false);
                     }else{
                         JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", 500, JFXToast.CENTTER);
@@ -782,7 +810,7 @@ public class ImageViewController implements Initializable {
                         resetSourceImage();
                         setImageResult(sapiroService.run(selectedImage, Integer.parseInt(iteration.getText())), "Sapiro avec "+iteration.getText()+" itérations");
                         applyFilterButton.setDisable(true);
-                        JFXToast.makeText(stage, "Traitement Terminé", 500, JFXToast.CENTTER);
+                        JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
                     }else{
                         JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", 500, JFXToast.CENTTER);
                     }
@@ -791,5 +819,10 @@ public class ImageViewController implements Initializable {
                 }
             }
         };
+    }
+    
+    
+    public void selectArea(){
+        areaSelection.selectArea(sourceHBox);
     }
 }

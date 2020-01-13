@@ -19,11 +19,11 @@
          <menus>
             <Menu mnemonicParsing="false" text="File">
                <items>
-                  <MenuItem mnemonicParsing="false" onAction="#setImageSource" text="Ouvrir">
+                  <MenuItem mnemonicParsing="false" onAction="#setImageSource" text="Importer">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="O" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
-                  <MenuItem mnemonicParsing="false" onAction="#saveResImage" text="Enregistrer">
+                  <MenuItem mnemonicParsing="false" onAction="#saveResImage" text="Exporter">
                      <accelerator>
                         <KeyCodeCombination alt="UP" code="S" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator></MenuItem>
@@ -40,6 +40,25 @@
                <accelerator>
                   <KeyCodeCombination alt="UP" code="T" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                </accelerator>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Edit">
+              <items>
+                  <MenuItem mnemonicParsing="false" onAction="#selectArea" text="Sélectionner" />
+                  <MenuItem mnemonicParsing="false" text="Crop" />
+                  <Menu mnemonicParsing="false" text="Zoom">
+                     <items>
+                      <MenuItem mnemonicParsing="false" text="Zoom In" />
+                        <MenuItem mnemonicParsing="false" text="Zoom Out" />
+                     </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="Rotation">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Droit" />
+                        <MenuItem mnemonicParsing="false" text="Gauche" />
+                    </items>
+                  </Menu>
+                  <MenuItem mnemonicParsing="false" text="Désélectionner" />
+              </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Doctrine Classique">
                <items>
@@ -128,44 +147,44 @@
          </font>
       </Label>
       <Slider fx:id="seuilSlider" layoutX="476.0" layoutY="136.0" max="1.0" orientation="VERTICAL" style="-fx-cursor: hand;" />
-      <Pane layoutX="15.0" layoutY="462.0" prefHeight="76.0" prefWidth="400.0">
+      <Pane fx:id="sourceInfoPane" layoutX="15.0" layoutY="462.0" prefHeight="76.0" prefWidth="400.0">
          <children>
-            <Label layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="61.0" text="Nom:">
+            <Label layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="61.0" style="-fx-font-weight: bold;" text="Nom:">
+               <font>
+                  <Font name="Liberation Serif" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="srcName" layoutX="75.0" layoutY="14.0" prefHeight="25.0" prefWidth="152.0">
                <font>
                   <Font name="Liberation Serif" size="16.0" />
                </font>
             </Label>
-            <Label alignment="CENTER" layoutX="75.0" layoutY="14.0" prefHeight="25.0" prefWidth="152.0" textAlignment="CENTER">
+            <Label layoutX="240.0" layoutY="14.0" prefHeight="25.0" prefWidth="48.0" style="-fx-font-weight: bold;" text="Taille:">
+               <font>
+                  <Font name="Liberation Serif" size="15.0" />
+               </font>
+            </Label>
+            <Label layoutX="14.0" layoutY="39.0" prefHeight="25.0" prefWidth="69.0" style="-fx-font-weight: bold;" text="Largeur:">
+               <font>
+                  <Font name="Liberation Serif" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="srcWidth" layoutX="75.0" layoutY="39.0" prefHeight="25.0" prefWidth="107.0">
                <font>
                   <Font name="Liberation Serif" size="16.0" />
                </font>
             </Label>
-            <Label layoutX="240.0" layoutY="14.0" prefHeight="25.0" prefWidth="48.0" text="Taille:">
+            <Label layoutX="240.0" layoutY="39.0" prefHeight="25.0" prefWidth="69.0" style="-fx-font-weight: bold;" text="Hauteur:">
+               <font>
+                  <Font name="Liberation Serif" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="srcSize" layoutX="302.0" layoutY="14.0" prefHeight="25.0" prefWidth="93.0">
                <font>
                   <Font name="Liberation Serif" size="16.0" />
                </font>
             </Label>
-            <Label layoutX="14.0" layoutY="39.0" prefHeight="25.0" prefWidth="61.0" text="Largeur:">
-               <font>
-                  <Font name="Liberation Serif" size="16.0" />
-               </font>
-            </Label>
-            <Label alignment="CENTER" layoutX="75.0" layoutY="39.0" prefHeight="25.0" prefWidth="107.0" textAlignment="CENTER">
-               <font>
-                  <Font name="Liberation Serif" size="16.0" />
-               </font>
-            </Label>
-            <Label layoutX="240.0" layoutY="39.0" prefHeight="25.0" prefWidth="61.0" text="Hauteur:">
-               <font>
-                  <Font name="Liberation Serif" size="16.0" />
-               </font>
-            </Label>
-            <Label alignment="CENTER" layoutX="288.0" layoutY="14.0" prefHeight="25.0" prefWidth="107.0" textAlignment="CENTER">
-               <font>
-                  <Font name="Liberation Serif" size="16.0" />
-               </font>
-            </Label>
-            <Label alignment="CENTER" layoutX="301.0" layoutY="39.0" prefHeight="25.0" prefWidth="87.0" textAlignment="CENTER">
+            <Label fx:id="srcHeight" layoutX="302.0" layoutY="39.0" prefHeight="25.0" prefWidth="86.0">
                <font>
                   <Font name="Liberation Serif" size="16.0" />
                </font>
