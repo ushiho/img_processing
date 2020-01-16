@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.Group?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -105,12 +106,18 @@
             </Menu>
          </menus>
       </MenuBar>
-      <HBox fx:id="sourceHBox" alignment="CENTER" layoutX="14.0" layoutY="111.0" onDragDropped="#handleOnDragDropped" onDragExited="#handleOnDragExited" onDragOver="#handleOnDragOver" onMouseDragOver="#handleOnDragOver" prefHeight="350.0" prefWidth="400.0" style="-fx-background-color: #d1e0d5; -fx-border-color: #C6C6C6;">
+      <HBox fx:id="sourceHBox" alignment="CENTER" layoutX="14.0" layoutY="111.0" maxHeight="350.0" maxWidth="400.0" minHeight="350.0" minWidth="400.0" onDragDropped="#handleOnDragDropped" onDragExited="#handleOnDragExited" onDragOver="#handleOnDragOver" onMouseDragOver="#handleOnDragOver" prefHeight="350.0" prefWidth="400.0" style="-fx-background-color: #d1e0d5; -fx-border-color: #C6C6C6;">
          <children>
-            <Group fx:id="sourceGroup">
+            <Group fx:id="sourceGroup" autoSizeChildren="false">
                <children>
-                  <ImageView fx:id="imageSource" fitHeight="350.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true" />
+                  <ImageView fx:id="imageSource" fitHeight="350.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true">
+                     <cursor>
+                        <Cursor fx:constant="WAIT" />
+                     </cursor></ImageView>
                </children>
+               <cursor>
+                  <Cursor fx:constant="OPEN_HAND" />
+               </cursor>
             </Group>
          </children>
       </HBox>

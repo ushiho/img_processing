@@ -186,7 +186,7 @@ public class MainSelectionAndCropService {
         private Paint darkAreaColor = Color.color(0, 0, 0, 0.5);
 
         private ResizableRectangle selectArea(Group group) {
-            System.out.println("In select area function");
+//            System.out.println("In select area function");
             this.group = group;
 
             // group.getChildren().get(0) == mainImageView. We assume image view as base container layer
@@ -200,7 +200,7 @@ public class MainSelectionAndCropService {
         }
 
         EventHandler<MouseEvent> onMousePressedEventHandler = event -> {
-            System.out.println("MOUSE_PRESSED");
+//            System.out.println("MOUSE_PRESSED");
             if (event.isSecondaryButtonDown()) {
                 return;
             }
@@ -210,8 +210,8 @@ public class MainSelectionAndCropService {
 //            if(rectangleStartX > mainImage.getWidth()) rectangleStartX = mainImage.getWidth();
 //            if(rectangleStartY > mainImage.getHeight()) rectangleStartY = mainImage.getHeight();
             
-            System.out.println("rectangleStartX = "+ rectangleStartX);
-            System.out.println("rectangleStartY = "+ rectangleStartY);
+//            System.out.println("rectangleStartX = "+ rectangleStartX);
+//            System.out.println("rectangleStartY = "+ rectangleStartY);
             clearSelection(group);
 
             selectionRectangle = new ResizableRectangle(rectangleStartX, rectangleStartY, 0, 0, group, mainImage.getWidth(), mainImage.getHeight());
@@ -221,7 +221,7 @@ public class MainSelectionAndCropService {
         };
 
         EventHandler<MouseEvent> onMouseDraggedEventHandler = event -> {
-            System.out.println("MOUSE_DRAGGED");
+//            System.out.println("MOUSE_DRAGGED");
             if (event.isSecondaryButtonDown()) {
                 return;
             }
@@ -262,7 +262,7 @@ public class MainSelectionAndCropService {
         };
 
         EventHandler<MouseEvent> onMouseReleasedEventHandler = event -> {
-            System.out.println("MOUSE_RELEASED");
+//            System.out.println("MOUSE_RELEASED");
             if (selectionRectangle != null) {
                 isAreaSelected = true;
             }
@@ -320,7 +320,6 @@ public class MainSelectionAndCropService {
     public void selectArea(){
         AreaSelection areaSelection = new AreaSelection();
         areaSelection.selectArea(this.group);
-        System.out.println("In selectArea function MainSelectionClass");
     }
 
 }

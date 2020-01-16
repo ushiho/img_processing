@@ -11,18 +11,21 @@ import javafx.scene.shape.Rectangle;
 
 class ResizableRectangle extends Rectangle {
 
-//    private int maxWidth;
-//    private int maxHeight;
+    private double maxWidth;
+    private double maxHeight;
     private double rectangleStartX;
     private double rectangleStartY;
     private double mouseClickPozX;
     private double mouseClickPozY;
     private static final double RESIZER_SQUARE_SIDE = 8;
-    private Paint resizerSquareColor = Color.WHITE;
-    private Paint rectangleStrokeColor = Color.BLACK;
+    private final Paint resizerSquareColor = Color.WHITE;
+    private final Paint rectangleStrokeColor = Color.BLACK;
 
     ResizableRectangle(double x, double y, double width, double height, Group group, double maxWidth, double maxHeight) {
         super(x,y,width,height);
+        this.maxHeight = maxHeight;
+        this.maxWidth = maxWidth;
+        
         group.getChildren().add(this);
         super.setStroke(rectangleStrokeColor);
         super.setStrokeWidth(1);
@@ -42,17 +45,14 @@ class ResizableRectangle extends Rectangle {
             moveRect.getParent().setCursor(Cursor.HAND));
 
         moveRect.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+//            System.out.println("In MOUSE_PRESSD on movRect ResizableRectangle.class");
             moveRect.getParent().setCursor(Cursor.MOVE);
-            mouseClickPozX = event.getX();
-            mouseClickPozY = event.getY();
-            System.out.println("MaxWidth = "+maxWidth);
-            System.out.println("maxHeight = "+maxHeight);
-            System.out.println("Avant=>in  rectangle constructor: mouseClickPozX = "+mouseClickPozX);
-            System.out.println("Avant=>in  rectangle constructor: mouseClickPozY = "+mouseClickPozY);
-            if(mouseClickPozX > maxWidth) mouseClickPozX = maxWidth;
+            if(event.getX() > maxWidth) mouseClickPozX = maxWidth;
+            else mouseClickPozX = event.getX();
             if(mouseClickPozY > maxHeight) mouseClickPozY = maxHeight;
-            System.out.println("Apres=>in  rectangle constructor: mouseClickPozX = "+mouseClickPozX);
-            System.out.println("Apres=>in  rectangle constructor: mouseClickPozY = "+mouseClickPozY);
+            else mouseClickPozY = event.getY();
+//            System.out.println("maxWidth = "+maxWidth+" and mouseClickPozX = "+mouseClickPozX);
+//            System.out.println("maxHeight = "+maxHeight+" and mouseClickPozY = "+mouseClickPozY);
         });
 
         moveRect.addEventHandler(MouseEvent.MOUSE_RELEASED, event ->
@@ -62,18 +62,18 @@ class ResizableRectangle extends Rectangle {
                 moveRect.getParent().setCursor(Cursor.DEFAULT));
 
         moveRect.addEventHandler(MouseEvent.MOUSE_DRAGGED,event -> {
-
+//            System.out.println("In MOUSE_DRAGGED on moveRect Event");
             double offsetX = event.getX() - mouseClickPozX;
             double offsetY = event.getY() - mouseClickPozY;
             double newX = super.getX() + offsetX ;
             double newY = super.getY() + offsetY ;
-            System.out.println("newX = "+newX);
-            System.out.println("newY = "+newY);
-            if (newX >= 0 && newX + super.getWidth() < maxWidth ) {
+//            System.out.println("offsetX = "+offsetX+" and newX = "+newX);
+//            System.out.println("offsetY = "+offsetY+" and newY = "+newY);
+            if (newX >= 0 && newX + super.getWidth() <= maxWidth) {
                 super.setX(newX);
             }
 
-            if (newY >= 0 && newY + super.getHeight() < maxHeight) {
+            if (newY >= 0 && newY + super.getHeight() <= maxHeight) {
                 super.setY(newY);
             }
             mouseClickPozX = event.getX();
@@ -82,19 +82,23 @@ class ResizableRectangle extends Rectangle {
         });
 
 
-        makeNWResizerSquare(group);
-        makeCWResizerSquare(group);
-        makeSWResizerSquare(group);
-        makeSCResizerSquare(group);
-        makeSEResizerSquare(group);
-        makeCEResizerSquare(group);
-        makeNEResizerSquare(group);
-        makeNCResizerSquare(group);
-
+        makeNWResizerSquare(group); // changed
+        makeSWResizerSquare(group); // changed
+        makeSEResizerSquare(group); // changed
+        makeNEResizerSquare(group); // changed
+                
+                
+        
+        makeSCResizerSquare(group); // south center
+        makeCWResizerSquare(group); // invocated center west
+        makeCEResizerSquare(group); // center east
+        makeNCResizerSquare(group); // invocated nord center
 
     }
+    // Fin Constructeur
 
     private void makeNWResizerSquare(Group group) {
+        System.out.println("In makeNWResizerSquare");
         Rectangle squareNW = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
 
         squareNW.xProperty().bind(super.xProperty().subtract(squareNW.widthProperty().divide(2.0)));
@@ -113,13 +117,12 @@ class ResizableRectangle extends Rectangle {
             double offsetY = event.getY() - rectangleStartY;
             double newX = super.getX() + offsetX ;
             double newY = super.getY() + offsetY ;
-
-            if (newX >= 0 && newX <= super.getX() + super.getWidth() ) {
+            if (newX >= 0 && newX <= super.getX() + super.getWidth() && event.getX() >= 0) {
                 super.setX(newX);
                 super.setWidth(super.getWidth() - offsetX);
             }
 
-            if (newY >= 0 && newY <= super.getY() + super.getHeight() ) {
+            if (newY >= 0 && newY <= super.getY() + super.getHeight() && event.getY() >= 0) {
                 super.setY(newY);
                 super.setHeight(super.getHeight() - offsetY);
             }
@@ -143,17 +146,16 @@ class ResizableRectangle extends Rectangle {
             rectangleStartX = super.getX();
             double offsetX = event.getX() - rectangleStartX;
             double newX = super.getX() + offsetX;
-
-            if (newX >= 0 && newX <= super.getX() + super.getWidth() - 5) {
+            if (newX >= 0 && newX <= super.getX() + super.getWidth() && event.getX() >= 0) {
                 super.setX(newX);
                 super.setWidth(super.getWidth() - offsetX);
             }
-
         });
 
     }
 
     private void makeSWResizerSquare(Group group) {
+//        System.out.println("makeSWResizerSquare");
         Rectangle squareSW = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
         squareSW.xProperty().bind(super.xProperty().subtract(squareSW.widthProperty().divide(2.0)));
         squareSW.yProperty().bind(super.yProperty().add(super.heightProperty().subtract(
@@ -171,13 +173,14 @@ class ResizableRectangle extends Rectangle {
             double offsetX = event.getX() - rectangleStartX;
             double offsetY = event.getY() - rectangleStartY;
             double newX = super.getX() + offsetX;
-
-            if (newX >= 0 && newX <= super.getX() + super.getWidth() - 5) {
+//            System.out.println("In make SW=> newY = "+newX);
+            if(newX < 0) newX = 0;
+            if (newX >= 0 && newX <= super.getX() + super.getWidth() - 5 && event.getX() >= 0) {
                 super.setX(newX);
                 super.setWidth(super.getWidth() - offsetX);
             }
 
-            if (offsetY >= 0 && offsetY <= super.getY() + super.getHeight() - 5) {
+            if (offsetY >= 0 && event.getY() <= maxHeight) {
                 super.setHeight(offsetY);
             }
         });
@@ -201,7 +204,7 @@ class ResizableRectangle extends Rectangle {
             rectangleStartY = super.getY();
             double offsetY = event.getY() - rectangleStartY;
 
-            if (offsetY >= 0 && offsetY <= super.getY() + super.getHeight() - 5) {
+            if (offsetY >= 0 && event.getY() <= maxHeight) {
                 super.setHeight(offsetY);
             }
 
@@ -209,6 +212,7 @@ class ResizableRectangle extends Rectangle {
     }
 
     private void makeSEResizerSquare(Group group) {
+        System.out.println("makeSEResizerSquare");
         Rectangle squareSE = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
         squareSE.xProperty().bind(super.xProperty().add(super.widthProperty()).subtract(
                 squareSE.widthProperty().divide(2.0)));
@@ -227,11 +231,11 @@ class ResizableRectangle extends Rectangle {
             double offsetX = event.getX() - rectangleStartX;
             double offsetY = event.getY() - rectangleStartY;
 
-            if (offsetX >= 0 && offsetX <= super.getX() + super.getWidth() - 5) {
+            if (offsetX >= 0 && event.getX() <= maxWidth) {
                 super.setWidth(offsetX);
             }
 
-            if (offsetY >= 0 && offsetY <= super.getY() + super.getHeight() - 5) {
+            if (offsetY >= 0 && event.getY() <= maxHeight) {
                 super.setHeight(offsetY);
             }
         });
@@ -253,14 +257,16 @@ class ResizableRectangle extends Rectangle {
         squareCE.addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
             rectangleStartX = super.getX();
             double offsetX = event.getX() - rectangleStartX;
-            if (offsetX >= 0 && offsetX <= super.getX() + super.getWidth() - 5) {
+            if (offsetX >= 0 && event.getX() <= maxWidth) {
                 super.setWidth(offsetX);
+                System.out.println("new super width = "+super.getWidth());
             }
 
         });
     }
 
     private void makeNEResizerSquare(Group group){
+//        System.out.println("makeNEResizerSquare");
         Rectangle squareNE = new Rectangle(RESIZER_SQUARE_SIDE,RESIZER_SQUARE_SIDE);
 
         squareNE.xProperty().bind(super.xProperty().add(super.widthProperty()).subtract(
@@ -279,12 +285,12 @@ class ResizableRectangle extends Rectangle {
             double offsetX = event.getX() - rectangleStartX;
             double offsetY = event.getY() - rectangleStartY;
             double newY = super.getY() + offsetY ;
-
-            if (offsetX >= 0 && offsetX <= super.getX() + super.getWidth() - 5) {
+            if(newY < 0) newY = 0;
+            if (offsetX >= 0 && event.getX() <= maxWidth) {
                 super.setWidth(offsetX);
             }
 
-            if (newY >= 0 && newY <= super.getY() + super.getHeight() - 5) {
+            if (newY >= 0 && newY <= super.getY() + super.getHeight() - 5 && event.getY() >= 0) {
                 super.setY(newY);
                 super.setHeight(super.getHeight() - offsetY);
             }
@@ -310,8 +316,8 @@ class ResizableRectangle extends Rectangle {
             rectangleStartY = super.getY();
             double offsetY = event.getY() - rectangleStartY;
             double newY = super.getY() + offsetY ;
-
-            if (newY >= 0 && newY <= super.getY() + super.getHeight()) {
+            if(newY < 0) newY = 0;
+            if (newY >= 0 && newY <= super.getY() + super.getHeight() && event.getY() >= 0) {
                 super.setY(newY);
                 super.setHeight(super.getHeight() - offsetY);
             }
