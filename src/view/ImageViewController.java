@@ -24,11 +24,8 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import bean.SelectedImage;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -40,6 +37,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
@@ -79,14 +77,16 @@ public class ImageViewController implements Initializable {
     OsherRudinService osherRudinService = new OsherRudinService();
     SapiroService sapiroService = new SapiroService();
     
-    static MainSelectionAndCropService mainSelectionAndCropService = new MainSelectionAndCropService();
+    MainSelectionAndCropService mainSelectionAndCropService = new MainSelectionAndCropService();
     private String sliderValueFormat;
     private SelectedImage selectedImage;
     protected int width = 0;
     protected int height = 0;
-    private static boolean isAreaSelected;
+    private static boolean isAreaSelected = false;
     ObjectProperty<Point2D> mouseDown = new SimpleObjectProperty<>();
     private static final int MIN_PIXELS = 10;
+    @FXML
+    private Pane parentPane;
     @FXML
     private ImageView imageSource;
     @FXML
@@ -121,6 +121,10 @@ public class ImageViewController implements Initializable {
     private Label srcHeight;
     @FXML
     private Group sourceGroup;
+    @FXML
+    private MenuItem cropItem;
+    @FXML
+    private MenuItem selectItem;
 //    @FXML
 //    private ProgressIndicator progressIndicator;
 //    @FXML
@@ -169,6 +173,7 @@ public class ImageViewController implements Initializable {
 //        zoomResPane.setVisible(false);
         imageViewEventsListener(imageSource);
         imageViewEventsListener(imageResult);
+
     }
 
     public void imageViewEventsListener(ImageView imageView) {
@@ -218,7 +223,8 @@ public class ImageViewController implements Initializable {
         imageView.setOnScroll(e -> {
             if(imageView.getImage() != null){
                 if(imageView.getViewport() == null){
-                    imageView.setViewport(new Rectangle2D(width, height, width, height));
+                    imageView.setViewport(new Rectangle2D(imageView.getImage().getWidth(), imageView.getImage().getHeight()
+                            , imageView.getImage().getWidth(), imageView.getImage().getHeight()));
                 }
                 double delta = e.getDeltaY();
                 Rectangle2D viewport = imageView.getViewport();
@@ -293,8 +299,8 @@ public class ImageViewController implements Initializable {
     }
 
     public void imageSrcToImageView() throws FileNotFoundException {
-        File file = selectedImage.getFile();
-        if(file != null){
+        if(selectedImage != null && selectedImage.getFile() != null){
+            File file = selectedImage.getFile();
             resetApp();
             calculateWidthAndHeight(new Image(file.toURI().toString()));
             Image source = new Image(file.toURI().toString(), width, height, false, false);
@@ -307,7 +313,7 @@ public class ImageViewController implements Initializable {
             srcName.setText(file.getName());
             srcSize.setText(file.length() / 1024+ " Kb");
             mainSelectionAndCropService.setGroup(sourceGroup);
-            mainSelectionAndCropService.setIsAreaSelected(isAreaSelected);
+            mainSelectionAndCropService.setAreaSelected(isAreaSelected);
             mainSelectionAndCropService.setMainImageView(imageSource);
             mainSelectionAndCropService.setMainImage(imageSource.getImage());
         }
@@ -331,6 +337,7 @@ public class ImageViewController implements Initializable {
     
     public void resetApp(){
         if(getSelectedImage().getFile() != null){
+            clearSelection();
             imageResult.setImage(null);
             previewLabel.setText("");
             imageService.getResultFile().delete();
@@ -402,10 +409,10 @@ public class ImageViewController implements Initializable {
             // Only get the first file from the list
             final File file = db.getFiles().get(0);
             Platform.runLater(() -> {
-                System.out.println(file.getAbsolutePath());
                 setSelectedImage(imageService.setSelectedImgInfo(file));
                 try {
                     imageSrcToImageView();
+                    calculateWidthAndHeight(imageSource.getImage());                    
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -582,9 +589,11 @@ public class ImageViewController implements Initializable {
                 applyFilterButton.setVisible(true);
                 applyFilterButton.setDisable(false);
                 iteration.setText("");
+                removeFocusOnTextField();
                 warningLabel.setText("Analyse Multi-échelle: Fonction de la chaleur");
                 applyFilterButton.setOnAction(handleHealthEvent(stage));
                 iteration.setOnAction(handleHealthEvent(stage));
+//                parentPane.setCursor(Cursor.DEFAULT);
             }
         } catch (Exception ex) {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
@@ -592,6 +601,7 @@ public class ImageViewController implements Initializable {
     }
 
     public EventHandler<ActionEvent> handleHealthEvent(Stage stage) {
+        parentPane.setCursor(Cursor.WAIT);
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -830,6 +840,48 @@ public class ImageViewController implements Initializable {
     
     
     public void selectArea(){
-        mainSelectionAndCropService.selectArea();
+        if(imageSource != null && imageSource.getImage() != null){
+            mainSelectionAndCropService.selectArea();
+        }
     }
+    
+    public void crop(){
+        Image croppedImage = mainSelectionAndCropService.cropSelected(sourceGroup);
+        if(croppedImage != null){
+            imageSource.setImage(croppedImage);
+            srcHeight.setText(""+croppedImage.getHeight());
+            srcWidth.setText(""+croppedImage.getWidth());
+//            mainSelectionAndCropService.centerImage(imageSource);
+            clearSelection();
+        }
+    }
+    
+    public void clearSelection(){
+        if(imageSource != null && imageSource.getImage() != null){
+            mainSelectionAndCropService.clearSelection(sourceGroup);
+        }
+    }
+    
+    public void restoreImage(){
+        if(getSelectedImage() != null){
+            Image source = new Image(getSelectedImage().getFile().toURI().toString(), width, height, false, false);
+            getImageSource().setImage(source);
+        }
+    }
+    
+    public void rotateToLeft(){
+        if(imageService != null){
+            Image rotatedImage = imageService.rotateImage(imageSource.getImage(), -90, width, height);
+            imageSource.setImage(rotatedImage);
+        }
+    }
+    
+    public void rotateToRight(){
+        if(imageService != null){
+            Image rotatedImage = imageService.rotateImage(imageSource.getImage(), 90, width, height);
+            imageSource.setImage(rotatedImage);
+        }
+    }
+    
+    
 }

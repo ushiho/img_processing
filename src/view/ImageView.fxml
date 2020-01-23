@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="537.0" prefWidth="973.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ImageViewController">
+<Pane fx:id="parentPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="537.0" prefWidth="973.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ImageViewController">
    <children>
       <MenuBar layoutY="-3.0" prefHeight="29.0" prefWidth="973.0">
          <menus>
@@ -46,20 +46,15 @@
             <Menu mnemonicParsing="false" text="Edit">
               <items>
                   <MenuItem mnemonicParsing="false" onAction="#selectArea" text="Sélectionner" />
-                  <MenuItem mnemonicParsing="false" text="Crop" />
-                  <Menu mnemonicParsing="false" text="Zoom">
-                     <items>
-                      <MenuItem mnemonicParsing="false" text="Zoom In" />
-                        <MenuItem mnemonicParsing="false" text="Zoom Out" />
-                     </items>
-                  </Menu>
+                  <MenuItem mnemonicParsing="false" onAction="#crop" text="Crop" />
                   <Menu mnemonicParsing="false" text="Rotation">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Droit" />
-                        <MenuItem mnemonicParsing="false" text="Gauche" />
+                        <MenuItem mnemonicParsing="false" onAction="#rotateToRight" text="Droit" />
+                        <MenuItem mnemonicParsing="false" onAction="#rotateToLeft" text="Gauche" />
                     </items>
                   </Menu>
-                  <MenuItem mnemonicParsing="false" text="Désélectionner" />
+                  <MenuItem mnemonicParsing="false" onAction="#clearSelection" text="Désélectionner" />
+                  <MenuItem mnemonicParsing="false" onAction="#restoreImage" text="Restaurer" />
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Doctrine Classique">
@@ -112,11 +107,11 @@
                <children>
                   <ImageView fx:id="imageSource" fitHeight="350.0" fitWidth="400.0" pickOnBounds="true" preserveRatio="true">
                      <cursor>
-                        <Cursor fx:constant="WAIT" />
+                        <Cursor fx:constant="DEFAULT" />
                      </cursor></ImageView>
                </children>
                <cursor>
-                  <Cursor fx:constant="OPEN_HAND" />
+                  <Cursor fx:constant="DEFAULT" />
                </cursor>
             </Group>
          </children>

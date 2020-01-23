@@ -40,15 +40,20 @@ public class MainSelectionAndCropService {
     private Group group;
     private ImageView mainImageView;
     private Image mainImage;
-    private boolean isAreaSelected;
+    private boolean areaSelected;
+    private AreaSelection areaSelection = new AreaSelection();
+//    private EventHandler<MouseEvent> onMousePressedEventHandler;
+//    private EventHandler<MouseEvent> onMouseDraggedEventHandler;
+//    private EventHandler<MouseEvent> onMouseReleasedEventHandler;
 
     public MainSelectionAndCropService() {
     }
+
     public MainSelectionAndCropService(Group group, ImageView mainImageView, Image mainImagen, boolean isAreaSelected) {
         this.group = group;
         this.mainImageView = mainImageView;
         this.mainImage = mainImage;
-        this.isAreaSelected = isAreaSelected;
+        this.areaSelected = isAreaSelected;
     }
 
     public Group getGroup() {
@@ -75,15 +80,15 @@ public class MainSelectionAndCropService {
         this.mainImage = mainImage;
     }
 
-    public boolean isIsAreaSelected() {
-        return isAreaSelected;
+    public boolean isAreaSelected() {
+        return areaSelected;
     }
 
-    public void setIsAreaSelected(boolean isAreaSelected) {
-        this.isAreaSelected = isAreaSelected;
+    public void setAreaSelected(boolean areaSelected) {
+        this.areaSelected = areaSelected;
     }
 
-    private void cropImage(Bounds bounds, ImageView imageView) {
+    public Image cropImage(Bounds bounds, ImageView imageView) {
 
         int width = (int) bounds.getWidth();
         int height = (int) bounds.getHeight();
@@ -95,10 +100,11 @@ public class MainSelectionAndCropService {
         WritableImage wi = new WritableImage(width, height);
         Image croppedImage = imageView.snapshot(parameters, wi);
 
-        showCroppedImageNewStage(wi, croppedImage);
+        //showCroppedImageNewStage(wi, croppedImage);
+        return croppedImage;
     }
 
-    private void showCroppedImageNewStage(WritableImage wi, Image croppedImage) {
+    public void showCroppedImageNewStage(WritableImage wi, Image croppedImage) {
         final Stage croppedImageStage = new Stage();
         croppedImageStage.setResizable(true);
         croppedImageStage.setTitle("Cropped Image");
@@ -116,7 +122,7 @@ public class MainSelectionAndCropService {
         croppedImageStage.setScene(scene);
     }
 
-    private void saveCroppedImage(Stage stage, WritableImage wi) {
+    public void saveCroppedImage(Stage stage, WritableImage wi) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Image");
         fileChooser.setInitialFileName("cats.png");
@@ -149,14 +155,15 @@ public class MainSelectionAndCropService {
         stage.close();
     }
 
-    private void clearSelection(Group group) {
-        //deletes everything except for base container layer
-        isAreaSelected = false;
+    public void clearSelection(Group group) {
+        areaSelected = false;
         group.getChildren().remove(1, group.getChildren().size());
-
+        if (group.getChildren().size() > 0) {
+            areaSelection.removeEventsFromImageView();
+        }
     }
 
-    private void changeStageSizeImageDimensions(Stage stage, Image image) {
+    public void changeStageSizeImageDimensions(Stage stage, Image image) {
         if (image != null) {
             stage.setMinHeight(250);
             stage.setMinWidth(250);
@@ -166,7 +173,7 @@ public class MainSelectionAndCropService {
         stage.show();
     }
 
-    private Image convertFileToImage(File imageFile) {
+    public Image convertFileToImage(File imageFile) {
         Image image = null;
         try (FileInputStream fileInputStream = new FileInputStream(imageFile)) {
             image = new Image(fileInputStream);
@@ -185,8 +192,22 @@ public class MainSelectionAndCropService {
         private double rectangleStartY;
         private Paint darkAreaColor = Color.color(0, 0, 0, 0.5);
 
+//      group.getChildren().get(0) = imageView
+        private void removeEventsFromImageView() {
+            this.group = group;
+            if (group != null) {
+                ImageView imageView = (ImageView) this.group.getChildren().get(0);
+                // group.getChildren().get(0) == mainImageView. We assume image view as base container layer
+                if (mainImageView != null && mainImage != null) {
+                    imageView.removeEventHandler(MouseEvent.MOUSE_PRESSED, onMousePressedEventHandler);
+                    imageView.removeEventHandler(MouseEvent.MOUSE_DRAGGED, onMouseDraggedEventHandler);
+                    imageView.removeEventHandler(MouseEvent.MOUSE_RELEASED, onMouseReleasedEventHandler);
+                }
+                selectionRectangle = null;
+            }
+        }
+
         private ResizableRectangle selectArea(Group group) {
-//            System.out.println("In select area function");
             this.group = group;
 
             // group.getChildren().get(0) == mainImageView. We assume image view as base container layer
@@ -200,28 +221,20 @@ public class MainSelectionAndCropService {
         }
 
         EventHandler<MouseEvent> onMousePressedEventHandler = event -> {
-//            System.out.println("MOUSE_PRESSED");
             if (event.isSecondaryButtonDown()) {
                 return;
             }
 
             rectangleStartX = event.getX();
             rectangleStartY = event.getY();
-//            if(rectangleStartX > mainImage.getWidth()) rectangleStartX = mainImage.getWidth();
-//            if(rectangleStartY > mainImage.getHeight()) rectangleStartY = mainImage.getHeight();
-            
-//            System.out.println("rectangleStartX = "+ rectangleStartX);
-//            System.out.println("rectangleStartY = "+ rectangleStartY);
             clearSelection(group);
 
             selectionRectangle = new ResizableRectangle(rectangleStartX, rectangleStartY, 0, 0, group, mainImage.getWidth(), mainImage.getHeight());
 
             darkenOutsideRectangle(selectionRectangle);
-
         };
 
         EventHandler<MouseEvent> onMouseDraggedEventHandler = event -> {
-//            System.out.println("MOUSE_DRAGGED");
             if (event.isSecondaryButtonDown()) {
                 return;
             }
@@ -262,9 +275,8 @@ public class MainSelectionAndCropService {
         };
 
         EventHandler<MouseEvent> onMouseReleasedEventHandler = event -> {
-//            System.out.println("MOUSE_RELEASED");
             if (selectionRectangle != null) {
-                isAreaSelected = true;
+                areaSelected = true;
             }
         };
 
@@ -316,10 +328,48 @@ public class MainSelectionAndCropService {
             darkAreaBottom.addEventHandler(MouseEvent.MOUSE_RELEASED, onMouseReleasedEventHandler);
         }
     }
-    
-    public void selectArea(){
-        AreaSelection areaSelection = new AreaSelection();
+
+    public void selectArea() {
+//        clearSelection(group);
+//        if(group.getChildren().size() > 1) group.getChildren().remove(1, group.getChildren().size());
+//        
+//        ResizableRectangle selectionRectangle = new ResizableRectangle(mainImage.getWidth()/2, mainImage.getHeight()/2
+//                ,0, 0, group, mainImage.getWidth(), mainImage.getHeight());
+//        areaSelection.group = this.group;
+//        areaSelection.darkenOutsideRectangle(selectionRectangle);
         areaSelection.selectArea(this.group);
+    }
+
+    public Image cropSelected(Group selectionGroup) {
+        if (areaSelected) {
+            return cropImage(areaSelection.selectArea(selectionGroup).getBoundsInParent(), mainImageView);
+        }
+        return null;
+    }
+
+    public void centerImage(ImageView imageView) {
+        Image img = imageView.getImage();
+        if (img != null) {
+            double w = 0;
+            double h = 0;
+
+            double ratioX = imageView.getFitWidth() / img.getWidth();
+            double ratioY = imageView.getFitHeight() / img.getHeight();
+
+            double reducCoeff = 0;
+            if (ratioX >= ratioY) {
+                reducCoeff = ratioY;
+            } else {
+                reducCoeff = ratioX;
+            }
+
+            w = img.getWidth() * reducCoeff;
+            h = img.getHeight() * reducCoeff;
+//            imageView.setX((imageView.getFitWidth() - w) / 2);
+//            imageView.setY((imageView.getFitHeight() - h) / 2);
+//            imageView.setX(200);
+//            imageView.setY(175);
+        }
     }
 
 }

@@ -12,10 +12,14 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javax.imageio.ImageIO;
 import bean.SelectedImage;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.ByteArrayOutputStream;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+import javafx.scene.transform.Rotate;
 
 /**
  *
@@ -139,4 +143,37 @@ public class ImageService {
         return ImageIO.write(image, "png", outputfile);
     }
     
+    public int bufferedImageSize(BufferedImage image) throws IOException{
+
+        ByteArrayOutputStream tmp = new ByteArrayOutputStream();
+        ImageIO.write(image, "png", tmp);
+        tmp.close();
+        return tmp.size();
+    }
+    
+    public Image rotateImage(Image image, int rotation, double width, double height) {
+        System.out.println("in rotate Func "
+                + "\n width = "+width+" & height = "+height);
+        ImageView iv = new ImageView(image);
+        SnapshotParameters params = new SnapshotParameters();
+        params.setFill(Color.TRANSPARENT);
+        params.setTransform(new Rotate(rotation, width / 2, height / 2));
+        params.setViewport(new Rectangle2D(0, 0, width, height));
+        Image img = iv.snapshot(params, null);
+        System.out.println("params "
+                + "\n width = "+params.getViewport().getWidth()+" height = "+params.getViewport().getHeight());
+        return img;
+    }
+    
+    public BufferedImage rotateCw( BufferedImage img ) {
+        int         width  = img.getWidth();
+        int         height = img.getHeight();
+        BufferedImage   newImage = new BufferedImage( height, width, img.getType() );
+
+        for( int i=0 ; i < width ; i++ )
+            for( int j=0 ; j < height ; j++ )
+                newImage.setRGB( height-1-j, i, img.getRGB(i,j) );
+
+        return newImage;
+    }
 }
