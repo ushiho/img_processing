@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Text layoutX="18.0" layoutY="32.0" strokeType="OUTSIDE" strokeWidth="0.0" text="    This app is created by LOTFI Hamza, student at National School of " wrappingWidth="563.7294921875">
+         <font>
+            <Font name="Liberation Serif" size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="18.0" layoutY="86.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CyberSecurity second year." wrappingWidth="563.7294921875">
+         <font>
+            <Font name="Liberation Serif" size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="18.0" layoutY="154.0" strokeType="OUTSIDE" strokeWidth="0.0" text="     In This destop app you'll find the applications of all differents filter studied" wrappingWidth="563.7294921875">
+         <font>
+            <Font name="Liberation Serif" size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="18.0" layoutY="60.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Engineering Sciences of Morocco, in preparation for master's degree " wrappingWidth="563.7294921875">
+         <font>
+            <Font name="Liberation Serif" size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="18.0" layoutY="180.0" strokeType="OUTSIDE" strokeWidth="0.0" text="in our formation such as Sobel, Prewitt, Heat Filter (EDP) and more." wrappingWidth="563.7294921875">
+         <font>
+            <Font name="Liberation Serif" size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="18.0" layoutY="224.0" strokeType="OUTSIDE" strokeWidth="0.0" text="This code source is published under GNU policy So feel free to edit, distribute it. But under the GNU policy." wrappingWidth="563.7294921875">
+         <font>
+            <Font name="Liberation Serif" size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="18.0" layoutY="278.0" strokeType="OUTSIDE" strokeWidth="0.0" text="My coordinates:" wrappingWidth="563.7294921875">
+         <font>
+            <Font name="Liberation Serif" size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="82.0" layoutY="319.0" strokeType="OUTSIDE" strokeWidth="0.0" text="https://www.github.com/ushiho" wrappingWidth="414.7294921875">
+         <font>
+            <Font name="Liberation Serif" size="18.0" />
+         </font>
+      </Text>
+      <Text layoutX="82.0" layoutY="339.0" strokeType="OUTSIDE" strokeWidth="0.0" text="https://www.linkedin.com/lootfi" wrappingWidth="414.7294921875">
+         <font>
+            <Font name="Liberation Serif" size="18.0" />
+         </font>
+      </Text>
+   </children>
+</Pane>

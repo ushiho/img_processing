@@ -24,6 +24,9 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import bean.SelectedImage;
+import com.qoppa.pdf.PDFException;
+import com.qoppa.pdf.dom.IPDFDocument;
+import com.qoppa.pdfViewerFX.PDFViewer;
 import java.io.FileNotFoundException;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -31,15 +34,18 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import service.AlvarezMorelService;
 import service.EmssService;
@@ -63,7 +69,7 @@ import util.MainSelectionAndCropService;
  * @author swiri
  */
 public class ImageViewController implements Initializable {
-    
+
     SobelService sobelService = new SobelService();
     PrewittService prewittService = new PrewittService();
     ImageService imageService = new ImageService();
@@ -76,7 +82,7 @@ public class ImageViewController implements Initializable {
     AlvarezMorelService alvarezMorelService = new AlvarezMorelService();
     OsherRudinService osherRudinService = new OsherRudinService();
     SapiroService sapiroService = new SapiroService();
-    
+
     MainSelectionAndCropService mainSelectionAndCropService = new MainSelectionAndCropService();
     private String sliderValueFormat;
     private SelectedImage selectedImage;
@@ -139,13 +145,13 @@ public class ImageViewController implements Initializable {
 //    private Slider zoomResSlider;
 //    @FXML
 //    private Pane zoomResPane;
-    
+
     /**
      * Initializes the controller class.
+     *
      * @param url
      * @param rb
      */
-    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         hideShowSeuilInfos(false);
@@ -161,10 +167,10 @@ public class ImageViewController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends String> observable,
                     String oldValue, String newValue) {
-                if(newValue.equals("")){
-                    applyFilterButton.setDisable(true); 
+                if (newValue.equals("")) {
+                    applyFilterButton.setDisable(true);
                 }
-                if(!newValue.equals("0") && !newValue.equals(oldValue)){
+                if (!newValue.equals("0") && !newValue.equals(oldValue)) {
                     applyFilterButton.setDisable(false);
                 }
             }
@@ -199,32 +205,32 @@ public class ImageViewController implements Initializable {
 //        });
 
         imageView.setOnMousePressed(e -> {
-            if(imageView.getViewport() != null){
+            if (imageView.getViewport() != null) {
                 Point2D mousePress = zoomService.imageViewToImage(imageView, new Point2D(e.getX(), e.getY()));
                 mouseDown.set(mousePress);
                 imageView.setCursor(Cursor.CLOSED_HAND);
             }
         });
-        
-        imageView.setOnMouseReleased(e->{
-            if(imageView.getViewport() != null){
+
+        imageView.setOnMouseReleased(e -> {
+            if (imageView.getViewport() != null) {
                 imageView.setCursor(Cursor.OPEN_HAND);
             }
         });
 
         imageView.setOnMouseDragged(e -> {
-            if(imageView.getViewport() != null){
+            if (imageView.getViewport() != null) {
                 Point2D dragPoint = zoomService.imageViewToImage(imageView, new Point2D(e.getX(), e.getY()));
                 zoomService.shift(imageView, dragPoint.subtract(mouseDown.get()));
                 mouseDown.set(zoomService.imageViewToImage(imageView, new Point2D(e.getX(), e.getY())));
             }
         });
-        
+
         imageView.setOnScroll(e -> {
-            if(imageView.getImage() != null){
-                if(imageView.getViewport() == null){
-                    imageView.setViewport(new Rectangle2D(imageView.getImage().getWidth(), imageView.getImage().getHeight()
-                            , imageView.getImage().getWidth(), imageView.getImage().getHeight()));
+            if (imageView.getImage() != null) {
+                if (imageView.getViewport() == null) {
+                    imageView.setViewport(new Rectangle2D(imageView.getImage().getWidth(), imageView.getImage().getHeight(),
+                             imageView.getImage().getWidth(), imageView.getImage().getHeight()));
                 }
                 double delta = e.getDeltaY();
                 Rectangle2D viewport = imageView.getViewport();
@@ -237,14 +243,14 @@ public class ImageViewController implements Initializable {
 
                 double newWidth = viewport.getWidth() * scale;
                 double newHeight = viewport.getHeight() * scale;
-                double newMinX = zoomService.clamp(mouse.getX() - (mouse.getX() - viewport.getMinX()) * scale, 
+                double newMinX = zoomService.clamp(mouse.getX() - (mouse.getX() - viewport.getMinX()) * scale,
                         0, width - newWidth);
-                double newMinY = zoomService.clamp(mouse.getY() - (mouse.getY() - viewport.getMinY()) * scale, 
+                double newMinY = zoomService.clamp(mouse.getY() - (mouse.getY() - viewport.getMinY()) * scale,
                         0, height - newHeight);
 
                 imageView.setViewport(new Rectangle2D(newMinX, newMinY, newWidth, newHeight));
-    //            zoomLabel.setText("x"+scale);
-                System.out.println("scale = "+scale);
+                //            zoomLabel.setText("x"+scale);
+                System.out.println("scale = " + scale);
             }
         });
 
@@ -253,11 +259,12 @@ public class ImageViewController implements Initializable {
                 zoomService.reset(imageView, width, height);
 //                zoomLabel.setText("x1");
 //                zoom.setValue(1);
-            }});
+            }
+        });
     }
-    
+
     public String getSliderValueFormat() {
-        if(sliderValueFormat == null || sliderValueFormat.equals("")){
+        if (sliderValueFormat == null || sliderValueFormat.equals("")) {
             sliderValueFormat = "%.2f";
         }
         return sliderValueFormat;
@@ -272,7 +279,7 @@ public class ImageViewController implements Initializable {
         seuilLevel.setVisible(state);
         seuilLabel.setVisible(state);
     }
-    
+
     public void hideShowIterationInfos(boolean state) {
         iteration.setVisible(state);
         iterationLabel.setVisible(state);
@@ -283,23 +290,20 @@ public class ImageViewController implements Initializable {
     }
 
     public SelectedImage getSelectedImage() {
-        if(selectedImage == null){
-            selectedImage = new SelectedImage();
-        }
         return selectedImage;
     }
 
     public void setSelectedImage(SelectedImage selectedImage) {
         this.selectedImage = selectedImage;
     }
-   
-    public void setImageSource() throws FileNotFoundException{
+
+    public void setImageSource() throws FileNotFoundException {
         setSelectedImage(imageService.openFile(getSelectedImage(), (Stage) previewLabel.getScene().getWindow()));
         imageSrcToImageView();
     }
 
     public void imageSrcToImageView() throws FileNotFoundException {
-        if(selectedImage != null && selectedImage.getFile() != null){
+        if (selectedImage != null && selectedImage.getFile() != null) {
             File file = selectedImage.getFile();
             resetApp();
             calculateWidthAndHeight(new Image(file.toURI().toString()));
@@ -308,10 +312,10 @@ public class ImageViewController implements Initializable {
 //            zoomSrcPane.setVisible(true);
             sourceInfoPane.setVisible(true);
             resetSrcInfo();
-            srcHeight.setText(source.getHeight()+" px");
-            srcWidth.setText(source.getWidth()+" px");
+            srcHeight.setText(source.getHeight() + " px");
+            srcWidth.setText(source.getWidth() + " px");
             srcName.setText(file.getName());
-            srcSize.setText(file.length() / 1024+ " Kb");
+            srcSize.setText(file.length() / 1024 + " Kb");
             mainSelectionAndCropService.setGroup(sourceGroup);
             mainSelectionAndCropService.setAreaSelected(isAreaSelected);
             mainSelectionAndCropService.setMainImageView(imageSource);
@@ -321,22 +325,22 @@ public class ImageViewController implements Initializable {
 
     public void calculateWidthAndHeight(Image source) {
         ImageView image = new ImageView(source);
-        double ratio = source.getWidth()/source.getHeight();
-        
-        if(400/ratio < 400) {
-            width=400;
-            height=(int) (400/ratio);
-        }else if(350*ratio < 350){
-            height=350;
-            width=(int) (350*ratio);
-        }else {
-            height=350;
-            width=400;
+        double ratio = source.getWidth() / source.getHeight();
+
+        if (400 / ratio < 400) {
+            width = 400;
+            height = (int) (400 / ratio);
+        } else if (350 * ratio < 350) {
+            height = 350;
+            width = (int) (350 * ratio);
+        } else {
+            height = 350;
+            width = 400;
         }
     }
-    
-    public void resetApp(){
-        if(getSelectedImage().getFile() != null){
+
+    public void resetApp() {
+        if (getSelectedImage().getFile() != null) {
             clearSelection();
             imageResult.setImage(null);
             previewLabel.setText("");
@@ -353,54 +357,53 @@ public class ImageViewController implements Initializable {
 //            zoomResPane.setVisible(false);
         }
     }
-    
-    public void resetSrcInfo(){
+
+    public void resetSrcInfo() {
         srcHeight.setText("");
         srcName.setText("");
         srcSize.setText("");
         srcWidth.setText("");
     }
-    
-    public void exitApp(){
+
+    public void exitApp() {
         Platform.exit();
         System.exit(0);
         resetApp();
-    }   
-    
+    }
+
     // Set Image To privew
     public void setImageResult(boolean res, String processName) {
         if (res) {
             imageResult.setImage(new Image(imageService.getResultFile().toURI().toString(), width, height, false, false));
-            previewLabel.setText("Aperçu: "+processName);
+            previewLabel.setText("Aperçu: " + processName);
             previewLabel.setStyle("-fx-font-weight: bold");
 //            zoomResPane.setVisible(true);
-        }else{
+        } else {
             previewLabel.setText("Some Error is occured!");
         }
     }
-    
-    public boolean imageSourceIsSetted() throws Exception{
-        if(imageSource.getImage() == null){
+
+    public boolean imageSourceIsSetted() throws Exception {
+        if (imageSource.getImage() == null) {
             warningLabel.setText("Aucune image n'est sélectionnée");
             return false;
         }
         return true;
     }
-    
-    
-    public void handleOnDragOver(final DragEvent event){
+
+    public void handleOnDragOver(final DragEvent event) {
         mouseDragOver(event);
     }
-    
+
     public void handleOnDragDropped(final DragEvent event) {
         mouseDragDropped(event);
     }
-    
+
     public void handleOnDragExited(final DragEvent event) {
-        sourceHBox.setStyle("-fx-border-color: #C6C6C6;" +
-                            "-fx-background-color:  #d1e0d5;");
+        sourceHBox.setStyle("-fx-border-color: #C6C6C6;"
+                + "-fx-background-color:  #d1e0d5;");
     }
-    
+
     private void mouseDragDropped(final DragEvent e) {
         final Dragboard db = e.getDragboard();
         boolean success = false;
@@ -412,7 +415,7 @@ public class ImageViewController implements Initializable {
                 setSelectedImage(imageService.setSelectedImgInfo(file));
                 try {
                     imageSrcToImageView();
-                    calculateWidthAndHeight(imageSource.getImage());                    
+                    calculateWidthAndHeight(imageSource.getImage());
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -421,39 +424,39 @@ public class ImageViewController implements Initializable {
         e.setDropCompleted(success);
         e.consume();
     }
-    
-    private  void mouseDragOver(final DragEvent e) {
+
+    private void mouseDragOver(final DragEvent e) {
         final Dragboard db = e.getDragboard();
- 
+
         final boolean isAccepted = db.getFiles().get(0).getName().toLowerCase().endsWith(".png")
                 || db.getFiles().get(0).getName().toLowerCase().endsWith(".jpeg")
                 || db.getFiles().get(0).getName().toLowerCase().endsWith(".jpg");
- 
+
         if (db.hasFiles()) {
             if (isAccepted) {
                 sourceHBox.setStyle("-fx-border-color: red;"
-              + "-fx-border-width: 5;"
-              + "-fx-background-color: #C6C6C6;"
-              + "-fx-border-style: solid;");
+                        + "-fx-border-width: 5;"
+                        + "-fx-background-color: #C6C6C6;"
+                        + "-fx-border-style: solid;");
                 e.acceptTransferModes(TransferMode.COPY);
             }
         } else {
             e.consume();
         }
     }
-    
-    public void saveResImage() throws IOException{
-        if(imageResult.getImage() == null){
+
+    public void saveResImage() throws IOException {
+        if (imageResult.getImage() == null) {
             warningLabel.setText("Aucun filtre n'est appliqué pour enregistrer vos tests.");
-        }else{
+        } else {
             imageService.saveImage(imageResult, (Stage) previewLabel.getScene().getWindow());
         }
     }
-    
+
     // Begin Filter Functions 
-    public void sobel() throws IOException{
+    public void sobel() throws IOException {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 resetSourceImage();
                 setSliderValueFormat("%.2f");
@@ -482,12 +485,13 @@ public class ImageViewController implements Initializable {
     }
 
     public void resetSourceImage() {
+        if(selectedImage != null)
         selectedImage.setBufferedImage(SwingFXUtils.fromFXImage(imageSource.getImage(), null));
     }
-    
-    public void  sobelIy() throws IOException{
+
+    public void sobelIy() throws IOException {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 warningLabel.setText("Doctrine classique: derivée Sobel suivant Y");
                 hideShowSeuilInfos(false);
@@ -500,10 +504,10 @@ public class ImageViewController implements Initializable {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void sobelIx() throws IOException{
+
+    public void sobelIx() throws IOException {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 warningLabel.setText("Doctrine classique: derivée Sobel suivant X");
                 hideShowSeuilInfos(false);
@@ -516,10 +520,10 @@ public class ImageViewController implements Initializable {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void prewitt() throws IOException{
+
+    public void prewitt() throws IOException {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 resetSourceImage();
                 setSliderValueFormat("%.2f");
@@ -539,7 +543,7 @@ public class ImageViewController implements Initializable {
                         } catch (IOException ex) {
                             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                         }
-                        
+
                     }
                 });
             }
@@ -547,10 +551,10 @@ public class ImageViewController implements Initializable {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void  prewittIy() throws IOException{
+
+    public void prewittIy() throws IOException {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 warningLabel.setText("Doctrine classique: derivée Prewitt suivant Y");
                 hideShowSeuilInfos(false);
@@ -563,12 +567,12 @@ public class ImageViewController implements Initializable {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void prewittIx() throws IOException{
+
+    public void prewittIx() throws IOException {
         try {
             Stage stage = (Stage) imageSource.getScene().getWindow();
             warningLabel.setText("Doctrine classique: derivée Prewitt suivant X");
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 hideShowSeuilInfos(false);
                 resetSourceImage();
                 setImageResult(prewittService.prewittIX(selectedImage), "Prewitt (Ix)");
@@ -579,10 +583,10 @@ public class ImageViewController implements Initializable {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void heatFilter() throws IOException{
+
+    public void heatFilter() throws IOException {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 hideShowSeuilInfos(false);
                 hideShowIterationInfos(true);
@@ -606,25 +610,25 @@ public class ImageViewController implements Initializable {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    if(!iteration.getText().equals("")){
+                    if (!iteration.getText().equals("")) {
                         resetSourceImage();
-                        setImageResult(heatEquationService.run(selectedImage, Integer.parseInt(iteration.getText())), "Fonction de chaleur avec "+iteration.getText()+" itération");
+                        setImageResult(heatEquationService.run(selectedImage, Integer.parseInt(iteration.getText())), "Fonction de chaleur avec " + iteration.getText() + " itération");
                         applyFilterButton.setDisable(true);
                         JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
-                    }else{
+                    } else {
                         JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", JFXToast.LONG, JFXToast.CENTTER);
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         };
     }
-    
-    public void  gaussianBlur() throws IOException{
+
+    public void gaussianBlur() throws IOException {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 warningLabel.setText("Doctrine classique: Gaussian blur");
                 hideShowSeuilInfos(false);
@@ -635,10 +639,10 @@ public class ImageViewController implements Initializable {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void emssFilter() throws IOException{
+
+    public void emssFilter() throws IOException {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 hideShowSeuilInfos(false);
                 hideShowIterationInfos(true);
@@ -653,24 +657,24 @@ public class ImageViewController implements Initializable {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public EventHandler<ActionEvent> handleEMSSEvent(Stage stage) {
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    if(!iteration.getText().equals("")){
+                    if (!iteration.getText().equals("")) {
                         resetSourceImage();
-                        setImageResult(emss.run(selectedImage, Integer.parseInt(iteration.getText())), "EMSS avec "+iteration.getText()+" itérations");
+                        setImageResult(emss.run(selectedImage, Integer.parseInt(iteration.getText())), "EMSS avec " + iteration.getText() + " itérations");
                         applyFilterButton.setDisable(true);
                         JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
-                    }else{
+                    } else {
                         JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", JFXToast.LONG, JFXToast.CENTTER);
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         };
     }
@@ -683,9 +687,10 @@ public class ImageViewController implements Initializable {
             }
         });
     }
-    public void malikPeronaFilter() throws IOException{
+
+    public void malikPeronaFilter() throws IOException {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 hideShowSeuilInfos(false);
                 hideShowIterationInfos(true);
@@ -700,31 +705,31 @@ public class ImageViewController implements Initializable {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public EventHandler<ActionEvent> handleMalikPeronaEvent(Stage stage) {
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    if(!iteration.getText().equals("")){
+                    if (!iteration.getText().equals("")) {
                         resetSourceImage();
-                        setImageResult(malikPeronaService.run(selectedImage, Integer.parseInt(iteration.getText())), "Malik & Perona avec "+iteration.getText()+" itérations");
+                        setImageResult(malikPeronaService.run(selectedImage, Integer.parseInt(iteration.getText())), "Malik & Perona avec " + iteration.getText() + " itérations");
                         applyFilterButton.setDisable(true);
                         JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
-                    }else{
+                    } else {
                         JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", JFXToast.LONG, JFXToast.CENTTER);
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         };
     }
-    
-    public void alvarezMorelFilter(){
+
+    public void alvarezMorelFilter() {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 hideShowSeuilInfos(false);
                 hideShowIterationInfos(true);
@@ -739,30 +744,31 @@ public class ImageViewController implements Initializable {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     public EventHandler<ActionEvent> handleAlvarezMorelEvent(Stage stage) {
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    if(!iteration.getText().equals("")){
+                    if (!iteration.getText().equals("")) {
                         resetSourceImage();
-                        setImageResult(alvarezMorelService.run(selectedImage, Integer.parseInt(iteration.getText())), "Alvarez-Morel avec "+iteration.getText()+" itérations");
+                        setImageResult(alvarezMorelService.run(selectedImage, Integer.parseInt(iteration.getText())), "Alvarez-Morel avec " + iteration.getText() + " itérations");
                         applyFilterButton.setDisable(true);
                         JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
-                    }else{
+                    } else {
                         JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", JFXToast.LONG, JFXToast.CENTTER);
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         };
     }
-    
-    public void osherRudinFilter(){
+
+    public void osherRudinFilter() {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 hideShowSeuilInfos(false);
                 hideShowIterationInfos(true);
@@ -777,18 +783,19 @@ public class ImageViewController implements Initializable {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     public EventHandler<ActionEvent> handleOsherRudinEvent(Stage stage) {
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    if(!iteration.getText().equals("")){
+                    if (!iteration.getText().equals("")) {
                         resetSourceImage();
-                        setImageResult(osherRudinService.run(selectedImage, Integer.parseInt(iteration.getText()), stage), "Osher-Rudin avec "+iteration.getText()+" itérations");
+                        setImageResult(osherRudinService.run(selectedImage, Integer.parseInt(iteration.getText()), stage), "Osher-Rudin avec " + iteration.getText() + " itérations");
                         applyFilterButton.setDisable(true);
                         JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
 //                        progressIndicator.setVisible(false);
-                    }else{
+                    } else {
                         JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", 500, JFXToast.CENTTER);
                     }
                 } catch (IOException ex) {
@@ -796,14 +803,14 @@ public class ImageViewController implements Initializable {
                 } catch (InterruptedException ex) {
                     Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         };
     }
-    
-    public void sapiroFilter(){
+
+    public void sapiroFilter() {
         try {
-            if(imageSourceIsSetted()){
+            if (imageSourceIsSetted()) {
                 Stage stage = (Stage) imageSource.getScene().getWindow();
                 hideShowSeuilInfos(false);
                 hideShowIterationInfos(true);
@@ -818,17 +825,18 @@ public class ImageViewController implements Initializable {
             Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
     public EventHandler<ActionEvent> handleSapiroEvent(Stage stage) {
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 try {
-                    if(!iteration.getText().equals("")){
+                    if (!iteration.getText().equals("")) {
                         resetSourceImage();
-                        setImageResult(sapiroService.run(selectedImage, Integer.parseInt(iteration.getText())), "Sapiro avec "+iteration.getText()+" itérations");
+                        setImageResult(sapiroService.run(selectedImage, Integer.parseInt(iteration.getText())), "Sapiro avec " + iteration.getText() + " itérations");
                         applyFilterButton.setDisable(true);
                         JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
-                    }else{
+                    } else {
                         JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", 500, JFXToast.CENTTER);
                     }
                 } catch (IOException ex) {
@@ -837,51 +845,73 @@ public class ImageViewController implements Initializable {
             }
         };
     }
-    
-    
-    public void selectArea(){
-        if(imageSource != null && imageSource.getImage() != null){
+
+    public void selectArea() {
+        if (imageSource != null && imageSource.getImage() != null) {
             mainSelectionAndCropService.selectArea();
         }
     }
-    
-    public void crop(){
+
+    public void crop() {
         Image croppedImage = mainSelectionAndCropService.cropSelected(sourceGroup);
-        if(croppedImage != null){
+        if (croppedImage != null) {
             imageSource.setImage(croppedImage);
-            srcHeight.setText(""+croppedImage.getHeight());
-            srcWidth.setText(""+croppedImage.getWidth());
+            srcHeight.setText("" + croppedImage.getHeight());
+            srcWidth.setText("" + croppedImage.getWidth());
 //            mainSelectionAndCropService.centerImage(imageSource);
             clearSelection();
         }
     }
-    
-    public void clearSelection(){
-        if(imageSource != null && imageSource.getImage() != null){
+
+    public void clearSelection() {
+        if (imageSource != null && imageSource.getImage() != null) {
             mainSelectionAndCropService.clearSelection(sourceGroup);
         }
     }
-    
-    public void restoreImage(){
-        if(getSelectedImage() != null){
+
+    public void restoreImage() {
+        if (getSelectedImage() != null) {
             Image source = new Image(getSelectedImage().getFile().toURI().toString(), width, height, false, false);
             getImageSource().setImage(source);
         }
     }
-    
-    public void rotateToLeft(){
-        if(imageService != null){
+
+    public void rotateToLeft() {
+        if (imageService != null) {
             Image rotatedImage = imageService.rotateImage(imageSource.getImage(), -90, width, height);
             imageSource.setImage(rotatedImage);
         }
     }
-    
-    public void rotateToRight(){
-        if(imageService != null){
+
+    public void rotateToRight() {
+        if (imageService != null) {
             Image rotatedImage = imageService.rotateImage(imageSource.getImage(), 90, width, height);
             imageSource.setImage(rotatedImage);
         }
     }
-    
-    
+
+    public void aboutApp() throws IOException {
+        Stage stage = new Stage();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/about.fxml"));
+        Parent root = loader.load();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.setTitle("About");
+        stage.setResizable(false);
+        stage.show();
+    }
+
+    public void showCours() throws PDFException {
+        String url = "/home/swiri/NetBeansProjects/Lambda/support/resume.pdf";
+        Stage stage = new Stage();
+        PDFViewer m_PDFViewer = new PDFViewer();
+        m_PDFViewer.loadPDF(url);
+        BorderPane borderPane = new BorderPane(m_PDFViewer);
+        Scene scene = new Scene(borderPane);
+        stage.setTitle("Lambda - Cours");
+        stage.setScene(scene);
+        stage.centerOnScreen();
+        stage.show();
+    }
+
 }

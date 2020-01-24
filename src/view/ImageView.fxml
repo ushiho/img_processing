@@ -96,7 +96,8 @@
             </Menu>
             <Menu mnemonicParsing="false" text="Aidez-moi">
                <items>
-                  <MenuItem mnemonicParsing="false" text="A propos" />
+                  <MenuItem mnemonicParsing="false" onAction="#showCours" text="Cours" />
+                  <MenuItem mnemonicParsing="false" onAction="#aboutApp" text="A propos" />
                </items>
             </Menu>
          </menus>

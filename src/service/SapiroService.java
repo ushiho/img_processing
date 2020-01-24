@@ -51,12 +51,12 @@ public class SapiroService {
             }
         }
 
-        double ch_Rouge[][] = new double[width + 4][height + 4];
-        double ch_Vert[][] = new double[width + 4][height + 4];
-        double ch_Bleu[][] = new double[width + 4][height + 4];
-        double Sapir_Rouge[][] = new double[width + 4][height + 4];
-        double Sapir_Vert[][] = new double[width + 4][height + 4];
-        double Sapir_Bleu[][] = new double[width + 4][height + 4];
+        double rouge[][] = new double[width + 4][height + 4];
+        double vert[][] = new double[width + 4][height + 4];
+        double bleu[][] = new double[width + 4][height + 4];
+        double sRouge[][] = new double[width + 4][height + 4];
+        double sVert[][] = new double[width + 4][height + 4];
+        double sBleu[][] = new double[width + 4][height + 4];
 
         for (j = 0; j < width; j++) {
             for (k = 0; k < height; k++) {
@@ -64,9 +64,9 @@ public class SapiroService {
                 int r = (pixel >> 16) & 0xff;
                 int g = (pixel >> 8) & 0xff;
                 int b = pixel & 0xff;
-                ch_Rouge[j + 2][k + 2] = r;
-                ch_Vert[j + 2][k + 2] = g;
-                ch_Bleu[j + 2][k + 2] = b;
+                rouge[j + 2][k + 2] = r;
+                vert[j + 2][k + 2] = g;
+                bleu[j + 2][k + 2] = b;
             }
         }
 
@@ -75,93 +75,93 @@ public class SapiroService {
             // Red Sacale
             for (x = 1; x < width + 3; x++) {
                 for (y = 1; y < height + 3; y++) {
-                    double I_x = (Ix[0][0] * ch_Rouge[x - 1][y - 1]) + (Ix[0][1] * ch_Rouge[x - 1][y])
-                            + (Ix[0][2] * ch_Rouge[x - 1][y + 1]) + (Ix[1][0] * ch_Rouge[x][y - 1])
-                            + (Ix[1][1] * ch_Rouge[x][y]) + (Ix[1][2] * ch_Rouge[x][y + 1])
-                            + (Ix[2][0] * ch_Rouge[x + 1][y - 1]) + (Ix[2][1] * ch_Rouge[x + 1][y]) + (Ix[2][2] * ch_Rouge[x + 1][y + 1]);
-                    double I_y = (Iy[0][0] * ch_Rouge[x - 1][y - 1]) + (Iy[0][1] * ch_Rouge[x - 1][y])
-                            + (Iy[0][2] * ch_Rouge[x - 1][y + 1]) + (Iy[1][0] * ch_Rouge[x][y - 1])
-                            + (Iy[1][1] * ch_Rouge[x][y]) + (Iy[1][2] * ch_Rouge[x][y + 1])
-                            + (Iy[2][0] * ch_Rouge[x + 1][y - 1]) + (Iy[2][1] * ch_Rouge[x + 1][y]) + (Iy[2][2] * ch_Rouge[x + 1][y + 1]);
+                    double rI_x = (Ix[0][0] * rouge[x - 1][y - 1]) + (Ix[0][1] * rouge[x - 1][y])
+                            + (Ix[0][2] * rouge[x - 1][y + 1]) + (Ix[1][0] * rouge[x][y - 1])
+                            + (Ix[1][1] * rouge[x][y]) + (Ix[1][2] * rouge[x][y + 1])
+                            + (Ix[2][0] * rouge[x + 1][y - 1]) + (Ix[2][1] * rouge[x + 1][y]) + (Ix[2][2] * rouge[x + 1][y + 1]);
+                    double rI_y = (Iy[0][0] * rouge[x - 1][y - 1]) + (Iy[0][1] * rouge[x - 1][y])
+                            + (Iy[0][2] * rouge[x - 1][y + 1]) + (Iy[1][0] * rouge[x][y - 1])
+                            + (Iy[1][1] * rouge[x][y]) + (Iy[1][2] * rouge[x][y + 1])
+                            + (Iy[2][0] * rouge[x + 1][y - 1]) + (Iy[2][1] * rouge[x + 1][y]) + (Iy[2][2] * rouge[x + 1][y + 1]);
 
-                    double I_xx = (Ixx[0][0] * ch_Rouge[x - 1][y - 1]) + (Ixx[0][1] * ch_Rouge[x - 1][y])
-                            + (Ixx[0][2] * ch_Rouge[x - 1][y + 1]) + (Ixx[1][0] * ch_Rouge[x][y - 1])
-                            + (Ixx[1][1] * ch_Rouge[x][y]) + (Ixx[1][2] * ch_Rouge[x][y + 1])
-                            + (Ixx[2][0] * ch_Rouge[x + 1][y - 1]) + (Ixx[2][1] * ch_Rouge[x + 1][y]) + (Ixx[2][2] * ch_Rouge[x + 1][y + 1]);
+                    double rI_xx = (Ixx[0][0] * rouge[x - 1][y - 1]) + (Ixx[0][1] * rouge[x - 1][y])
+                            + (Ixx[0][2] * rouge[x - 1][y + 1]) + (Ixx[1][0] * rouge[x][y - 1])
+                            + (Ixx[1][1] * rouge[x][y]) + (Ixx[1][2] * rouge[x][y + 1])
+                            + (Ixx[2][0] * rouge[x + 1][y - 1]) + (Ixx[2][1] * rouge[x + 1][y]) + (Ixx[2][2] * rouge[x + 1][y + 1]);
 
-                    double I_yy = (Iyy[0][0] * ch_Rouge[x - 1][y - 1]) + (Iyy[0][1] * ch_Rouge[x - 1][y])
-                            + (Iyy[0][2] * ch_Rouge[x - 1][y + 1]) + (Iyy[1][0] * ch_Rouge[x][y - 1])
-                            + (Iyy[1][1] * ch_Rouge[x][y]) + (Iyy[1][2] * ch_Rouge[x][y + 1])
-                            + (Iyy[2][0] * ch_Rouge[x + 1][y - 1]) + (Iyy[2][1] * ch_Rouge[x + 1][y]) + (Iyy[2][2] * ch_Rouge[x + 1][y + 1]);
+                    double rI_yy = (Iyy[0][0] * rouge[x - 1][y - 1]) + (Iyy[0][1] * rouge[x - 1][y])
+                            + (Iyy[0][2] * rouge[x - 1][y + 1]) + (Iyy[1][0] * rouge[x][y - 1])
+                            + (Iyy[1][1] * rouge[x][y]) + (Iyy[1][2] * rouge[x][y + 1])
+                            + (Iyy[2][0] * rouge[x + 1][y - 1]) + (Iyy[2][1] * rouge[x + 1][y]) + (Iyy[2][2] * rouge[x + 1][y + 1]);
 
-                    double I_xy = (Ixy[0][0] * ch_Rouge[x - 1][y - 1]) + (Ixy[0][1] * ch_Rouge[x - 1][y])
-                            + (Ixy[0][2] * ch_Rouge[x - 1][y + 1]) + (Ixy[1][0] * ch_Rouge[x][y - 1])
-                            + (Ixy[1][1] * ch_Rouge[x][y]) + (Ixy[1][2] * ch_Rouge[x][y + 1])
-                            + (Ixy[2][0] * ch_Rouge[x + 1][y - 1]) + (Ixy[2][1] * ch_Rouge[x + 1][y]) + (Ixy[2][2] * ch_Rouge[x + 1][y + 1]);
+                    double rI_xy = (Ixy[0][0] * rouge[x - 1][y - 1]) + (Ixy[0][1] * rouge[x - 1][y])
+                            + (Ixy[0][2] * rouge[x - 1][y + 1]) + (Ixy[1][0] * rouge[x][y - 1])
+                            + (Ixy[1][1] * rouge[x][y]) + (Ixy[1][2] * rouge[x][y + 1])
+                            + (Ixy[2][0] * rouge[x + 1][y - 1]) + (Ixy[2][1] * rouge[x + 1][y]) + (Ixy[2][2] * rouge[x + 1][y + 1]);
 
-                    double G11 = I_x * I_x;
-                    double G12 = I_x * I_y;
-                    double G22 = I_y * I_y;
-                    double landaPLUS = (G11 + G22 + Math.sqrt(((G11 - G22) * (G11 - G22)) + 4 * G12 * G12)) / 2;
-                    double landaMOINS = (G11 + G22 - Math.sqrt(((G11 - G22) * (G11 - G22)) + 4 * G12 * G12)) / 2;
-                    double redE = (I_xx * I_y * I_y - 2 * I_xy * I_x * I_y + I_yy * I_x * I_x);
-                    double redE2 = (I_x * I_x + I_y * I_y);
+                    double rG11 = rI_x * rI_x;
+                    double rG12 = rI_x * rI_y;
+                    double rG22 = rI_y * rI_y;
+                    double landaPLUS = (rG11 + rG22 + Math.sqrt(((rG11 - rG22) * (rG11 - rG22)) + 4 * rG12 * rG12)) / 2;
+                    double landaMOINS = (rG11 + rG22 - Math.sqrt(((rG11 - rG22) * (rG11 - rG22)) + 4 * rG12 * rG12)) / 2;
+                    double redE = (rI_xx * rI_y * rI_y - 2 * rI_xy * rI_x * rI_y + rI_yy * rI_x * rI_x);
+                    double redE2 = (rI_x * rI_x + rI_y * rI_y);
                     if(redE2 == 0){
                         redE2 = 1;
                     }
                     saprio[x][y] = Math.sqrt(landaPLUS - landaMOINS);
-                    Sapir_Rouge[x][y] = (redE / redE2);
-                    Sapir_Rouge[x][y] *= fctSeuille(saprio[x][y]);
+                    sRouge[x][y] = (redE / redE2);
+                    sRouge[x][y] *= fctSeuille(saprio[x][y]);
                 }
             }
             // Traitement  R 			
             for (x = 0; x < width + 4; x++) {
                 for (y = 0; y < height + 4; y++) {
-                    ch_Rouge[x][y] += dt * Sapir_Rouge[x][y];
+                    rouge[x][y] += dt * sRouge[x][y];
                 }
             }
 
             // GREEN SCALE
             for (x = 1; x < width + 3; x++) {
                 for (y = 1; y < height + 3; y++) {
-                    double I_x = (Ix[0][0] * ch_Vert[x - 1][y - 1]) + (Ix[0][1] * ch_Vert[x - 1][y]) + (Ix[0][2] * ch_Vert[x - 1][y + 1])
-                            + (Ix[1][0] * ch_Vert[x][y - 1]) + (Ix[1][1] * ch_Vert[x][y]) + (Ix[1][2] * ch_Vert[x][y + 1])
-                            + (Ix[2][0] * ch_Vert[x + 1][y - 1]) + (Ix[2][1] * ch_Vert[x + 1][y]) + (Ix[2][2] * ch_Vert[x + 1][y + 1]);
+                    double I_x = (Ix[0][0] * vert[x - 1][y - 1]) + (Ix[0][1] * vert[x - 1][y]) + (Ix[0][2] * vert[x - 1][y + 1])
+                            + (Ix[1][0] * vert[x][y - 1]) + (Ix[1][1] * vert[x][y]) + (Ix[1][2] * vert[x][y + 1])
+                            + (Ix[2][0] * vert[x + 1][y - 1]) + (Ix[2][1] * vert[x + 1][y]) + (Ix[2][2] * vert[x + 1][y + 1]);
 
-                    double I_y = (Iy[0][0] * ch_Vert[x - 1][y - 1]) + (Iy[0][1] * ch_Vert[x - 1][y]) + (Iy[0][2] * ch_Vert[x - 1][y + 1])
-                            + (Iy[1][0] * ch_Vert[x][y - 1]) + (Iy[1][1] * ch_Vert[x][y]) + (Iy[1][2] * ch_Vert[x][y + 1]) + (Iy[2][0] * ch_Vert[x + 1][y - 1])
-                            + (Iy[2][1] * ch_Vert[x + 1][y])
-                            + (Iy[2][2] * ch_Vert[x + 1][y + 1]);
+                    double I_y = (Iy[0][0] * vert[x - 1][y - 1]) + (Iy[0][1] * vert[x - 1][y]) + (Iy[0][2] * vert[x - 1][y + 1])
+                            + (Iy[1][0] * vert[x][y - 1]) + (Iy[1][1] * vert[x][y]) + (Iy[1][2] * vert[x][y + 1]) + (Iy[2][0] * vert[x + 1][y - 1])
+                            + (Iy[2][1] * vert[x + 1][y])
+                            + (Iy[2][2] * vert[x + 1][y + 1]);
 
-                    double I_xx = (Ixx[0][0] * ch_Vert[x - 1][y - 1])
-                            + (Ixx[0][1] * ch_Vert[x - 1][y])
-                            + (Ixx[0][2] * ch_Vert[x - 1][y + 1])
-                            + (Ixx[1][0] * ch_Vert[x][y - 1])
-                            + (Ixx[1][1] * ch_Vert[x][y])
-                            + (Ixx[1][2] * ch_Vert[x][y + 1])
-                            + (Ixx[2][0] * ch_Vert[x + 1][y - 1])
-                            + (Ixx[2][1] * ch_Vert[x + 1][y])
-                            + (Ixx[2][2] * ch_Vert[x + 1][y + 1]);
+                    double I_xx = (Ixx[0][0] * vert[x - 1][y - 1])
+                            + (Ixx[0][1] * vert[x - 1][y])
+                            + (Ixx[0][2] * vert[x - 1][y + 1])
+                            + (Ixx[1][0] * vert[x][y - 1])
+                            + (Ixx[1][1] * vert[x][y])
+                            + (Ixx[1][2] * vert[x][y + 1])
+                            + (Ixx[2][0] * vert[x + 1][y - 1])
+                            + (Ixx[2][1] * vert[x + 1][y])
+                            + (Ixx[2][2] * vert[x + 1][y + 1]);
 
-                    double I_yy = (Iyy[0][0] * ch_Vert[x - 1][y - 1])
-                            + (Iyy[0][1] * ch_Vert[x - 1][y])
-                            + (Iyy[0][2] * ch_Vert[x - 1][y + 1])
-                            + (Iyy[1][0] * ch_Vert[x][y - 1])
-                            + (Iyy[1][1] * ch_Vert[x][y])
-                            + (Iyy[1][2] * ch_Vert[x][y + 1])
-                            + (Iyy[2][0] * ch_Vert[x + 1][y - 1])
-                            + (Iyy[2][1] * ch_Vert[x + 1][y])
-                            + (Iyy[2][2] * ch_Vert[x + 1][y + 1]);
+                    double I_yy = (Iyy[0][0] * vert[x - 1][y - 1])
+                            + (Iyy[0][1] * vert[x - 1][y])
+                            + (Iyy[0][2] * vert[x - 1][y + 1])
+                            + (Iyy[1][0] * vert[x][y - 1])
+                            + (Iyy[1][1] * vert[x][y])
+                            + (Iyy[1][2] * vert[x][y + 1])
+                            + (Iyy[2][0] * vert[x + 1][y - 1])
+                            + (Iyy[2][1] * vert[x + 1][y])
+                            + (Iyy[2][2] * vert[x + 1][y + 1]);
 
-                    double I_xy = (Ixy[0][0] * ch_Vert[x - 1][y - 1])
-                            + (Ixy[0][1] * ch_Vert[x - 1][y])
-                            + (Ixy[0][2] * ch_Vert[x - 1][y + 1])
-                            + (Ixy[1][0] * ch_Vert[x][y - 1])
-                            + (Ixy[1][1] * ch_Vert[x][y])
-                            + (Ixy[1][2] * ch_Vert[x][y + 1])
-                            + (Ixy[2][0] * ch_Vert[x + 1][y - 1])
-                            + (Ixy[2][1] * ch_Vert[x + 1][y])
-                            + (Ixy[2][2] * ch_Vert[x + 1][y + 1]);
+                    double I_xy = (Ixy[0][0] * vert[x - 1][y - 1])
+                            + (Ixy[0][1] * vert[x - 1][y])
+                            + (Ixy[0][2] * vert[x - 1][y + 1])
+                            + (Ixy[1][0] * vert[x][y - 1])
+                            + (Ixy[1][1] * vert[x][y])
+                            + (Ixy[1][2] * vert[x][y + 1])
+                            + (Ixy[2][0] * vert[x + 1][y - 1])
+                            + (Ixy[2][1] * vert[x + 1][y])
+                            + (Ixy[2][2] * vert[x + 1][y + 1]);
 
                     double G11 = I_x * I_x;
                     double G12 = I_x * I_y;
@@ -174,15 +174,15 @@ public class SapiroService {
                         greenE2 = 1;
                     }
                     saprio[x][y] = Math.sqrt(landaPLUS - landaMOINS);
-                    Sapir_Vert[x][y] = greenE / greenE2;
-                    Sapir_Vert[x][y] *= fctSeuille(saprio[x][y]);
+                    sVert[x][y] = greenE / greenE2;
+                    sVert[x][y] *= fctSeuille(saprio[x][y]);
 
                 }
             }
             // Traitement V
             for (x = 0; x < width + 4; x++) {
                 for (y = 0; y < height + 4; y++) {
-                    ch_Vert[x][y] += dt * Sapir_Vert[x][y];
+                    vert[x][y] += dt * sVert[x][y];
                 }
             }
 //---------------------------------------------------------------------------------------------------------------------
@@ -191,55 +191,55 @@ public class SapiroService {
             for (x = 1; x < width + 3; x++) {
                 for (y = 1; y < height + 3; y++) {
 
-                    double I_x = (Ix[0][0] * ch_Bleu[x - 1][y - 1])
-                            + (Ix[0][1] * ch_Bleu[x - 1][y])
-                            + (Ix[0][2] * ch_Bleu[x - 1][y + 1])
-                            + (Ix[1][0] * ch_Bleu[x][y - 1])
-                            + (Ix[1][1] * ch_Bleu[x][y])
-                            + (Ix[1][2] * ch_Bleu[x][y + 1])
-                            + (Ix[2][0] * ch_Bleu[x + 1][y - 1])
-                            + (Ix[2][1] * ch_Bleu[x + 1][y])
-                            + (Ix[2][2] * ch_Bleu[x + 1][y + 1]);
+                    double I_x = (Ix[0][0] * bleu[x - 1][y - 1])
+                            + (Ix[0][1] * bleu[x - 1][y])
+                            + (Ix[0][2] * bleu[x - 1][y + 1])
+                            + (Ix[1][0] * bleu[x][y - 1])
+                            + (Ix[1][1] * bleu[x][y])
+                            + (Ix[1][2] * bleu[x][y + 1])
+                            + (Ix[2][0] * bleu[x + 1][y - 1])
+                            + (Ix[2][1] * bleu[x + 1][y])
+                            + (Ix[2][2] * bleu[x + 1][y + 1]);
 
-                    double I_y = (Iy[0][0] * ch_Bleu[x - 1][y - 1])
-                            + (Iy[0][1] * ch_Bleu[x - 1][y])
-                            + (Iy[0][2] * ch_Bleu[x - 1][y + 1])
-                            + (Iy[1][0] * ch_Bleu[x][y - 1])
-                            + (Iy[1][1] * ch_Bleu[x][y])
-                            + (Iy[1][2] * ch_Bleu[x][y + 1])
-                            + (Iy[2][0] * ch_Bleu[x + 1][y - 1])
-                            + (Iy[2][1] * ch_Bleu[x + 1][y])
-                            + (Iy[2][2] * ch_Bleu[x + 1][y + 1]);
+                    double I_y = (Iy[0][0] * bleu[x - 1][y - 1])
+                            + (Iy[0][1] * bleu[x - 1][y])
+                            + (Iy[0][2] * bleu[x - 1][y + 1])
+                            + (Iy[1][0] * bleu[x][y - 1])
+                            + (Iy[1][1] * bleu[x][y])
+                            + (Iy[1][2] * bleu[x][y + 1])
+                            + (Iy[2][0] * bleu[x + 1][y - 1])
+                            + (Iy[2][1] * bleu[x + 1][y])
+                            + (Iy[2][2] * bleu[x + 1][y + 1]);
 
-                    double I_xx = (Ixx[0][0] * ch_Bleu[x - 1][y - 1])
-                            + (Ixx[0][1] * ch_Bleu[x - 1][y])
-                            + (Ixx[0][2] * ch_Bleu[x - 1][y + 1])
-                            + (Ixx[1][0] * ch_Bleu[x][y - 1])
-                            + (Ixx[1][1] * ch_Bleu[x][y])
-                            + (Ixx[1][2] * ch_Bleu[x][y + 1])
-                            + (Ixx[2][0] * ch_Bleu[x + 1][y - 1])
-                            + (Ixx[2][1] * ch_Bleu[x + 1][y])
-                            + (Ixx[2][2] * ch_Bleu[x + 1][y + 1]);
+                    double I_xx = (Ixx[0][0] * bleu[x - 1][y - 1])
+                            + (Ixx[0][1] * bleu[x - 1][y])
+                            + (Ixx[0][2] * bleu[x - 1][y + 1])
+                            + (Ixx[1][0] * bleu[x][y - 1])
+                            + (Ixx[1][1] * bleu[x][y])
+                            + (Ixx[1][2] * bleu[x][y + 1])
+                            + (Ixx[2][0] * bleu[x + 1][y - 1])
+                            + (Ixx[2][1] * bleu[x + 1][y])
+                            + (Ixx[2][2] * bleu[x + 1][y + 1]);
 
-                    double I_yy = (Iyy[0][0] * ch_Bleu[x - 1][y - 1])
-                            + (Iyy[0][1] * ch_Bleu[x - 1][y])
-                            + (Iyy[0][2] * ch_Bleu[x - 1][y + 1])
-                            + (Iyy[1][0] * ch_Bleu[x][y - 1])
-                            + (Iyy[1][1] * ch_Bleu[x][y])
-                            + (Iyy[1][2] * ch_Bleu[x][y + 1])
-                            + (Iyy[2][0] * ch_Bleu[x + 1][y - 1])
-                            + (Iyy[2][1] * ch_Bleu[x + 1][y])
-                            + (Iyy[2][2] * ch_Bleu[x + 1][y + 1]);
+                    double I_yy = (Iyy[0][0] * bleu[x - 1][y - 1])
+                            + (Iyy[0][1] * bleu[x - 1][y])
+                            + (Iyy[0][2] * bleu[x - 1][y + 1])
+                            + (Iyy[1][0] * bleu[x][y - 1])
+                            + (Iyy[1][1] * bleu[x][y])
+                            + (Iyy[1][2] * bleu[x][y + 1])
+                            + (Iyy[2][0] * bleu[x + 1][y - 1])
+                            + (Iyy[2][1] * bleu[x + 1][y])
+                            + (Iyy[2][2] * bleu[x + 1][y + 1]);
 
-                    double I_xy = (Ixy[0][0] * ch_Bleu[x - 1][y - 1])
-                            + (Ixy[0][1] * ch_Bleu[x - 1][y])
-                            + (Ixy[0][2] * ch_Bleu[x - 1][y + 1])
-                            + (Ixy[1][0] * ch_Bleu[x][y - 1])
-                            + (Ixy[1][1] * ch_Bleu[x][y])
-                            + (Ixy[1][2] * ch_Bleu[x][y + 1])
-                            + (Ixy[2][0] * ch_Bleu[x + 1][y - 1])
-                            + (Ixy[2][1] * ch_Bleu[x + 1][y])
-                            + (Ixy[2][2] * ch_Bleu[x + 1][y + 1]);
+                    double I_xy = (Ixy[0][0] * bleu[x - 1][y - 1])
+                            + (Ixy[0][1] * bleu[x - 1][y])
+                            + (Ixy[0][2] * bleu[x - 1][y + 1])
+                            + (Ixy[1][0] * bleu[x][y - 1])
+                            + (Ixy[1][1] * bleu[x][y])
+                            + (Ixy[1][2] * bleu[x][y + 1])
+                            + (Ixy[2][0] * bleu[x + 1][y - 1])
+                            + (Ixy[2][1] * bleu[x + 1][y])
+                            + (Ixy[2][2] * bleu[x + 1][y + 1]);
 
                     double G11 = I_x * I_x;
                     double G12 = I_x * I_y;
@@ -253,15 +253,15 @@ public class SapiroService {
                     }
                     saprio[x][y] = Math.sqrt(landaPLUS - landaMOINS);
 
-                    Sapir_Bleu[x][y] = (blueE / blueE2);
-                    Sapir_Bleu[x][y] *= fctSeuille(saprio[x][y]);
+                    sBleu[x][y] = (blueE / blueE2);
+                    sBleu[x][y] *= fctSeuille(saprio[x][y]);
 
                 }
             }
             // TRAITEMENT B	
             for (x = 0; x < width + 4; x++) {
                 for (y = 0; y < height + 4; y++) {
-                    ch_Bleu[x][y] += dt * Sapir_Bleu[x][y];
+                    bleu[x][y] += dt * sBleu[x][y];
                 }
             }
 //---------------------------------------------------------------------------------------------------------------------
@@ -269,9 +269,9 @@ public class SapiroService {
             // CREATING IMAGE , NEW Pxi to IMG
             for (x = 0; x < width; x++) {
                 for (y = 0; y < height; y++) {
-                    int r = (int) ch_Rouge[x + 2][y + 2];
-                    int g = (int) ch_Vert[x + 2][y + 2];
-                    int b = (int) ch_Bleu[x + 2][y + 2];
+                    int r = (int) rouge[x + 2][y + 2];
+                    int g = (int) vert[x + 2][y + 2];
+                    int b = (int) bleu[x + 2][y + 2];
                     if (r > 255) {
                         r = 255;
                     }
