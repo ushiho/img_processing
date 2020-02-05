@@ -16,7 +16,7 @@ import javax.imageio.ImageIO;
  *
  * @author swiri
  */
-public class SapiroService {
+public class DizenzoService {
 
     double[][] Ix = {{0.1464466, 0.0, -0.1464466}, {0.2071067, 0.0, -0.2071067}, {0.1464466, 0.0, -0.1464466}};
     double[][] Iy = {{0.1464466, 0.2071067, 0.1464466}, {0.0, 0.0, 0.0}, {-0.1464466, -0.2071067, -0.1464466}};
@@ -34,7 +34,7 @@ public class SapiroService {
         int width = image.getWidth();
         int height = image.getHeight();
         double[][] newMat = new double[width + 4][height + 4];
-        double[][] saprio = new double[width + 4][height + 4];
+        double[][] dizenzo = new double[width + 4][height + 4];
         double dt = 0.25;
         int i, x, y;
         int j, k;
@@ -54,9 +54,9 @@ public class SapiroService {
         double rouge[][] = new double[width + 4][height + 4];
         double vert[][] = new double[width + 4][height + 4];
         double bleu[][] = new double[width + 4][height + 4];
-        double sRouge[][] = new double[width + 4][height + 4];
-        double sVert[][] = new double[width + 4][height + 4];
-        double sBleu[][] = new double[width + 4][height + 4];
+        double dRouge[][] = new double[width + 4][height + 4];
+        double dVert[][] = new double[width + 4][height + 4];
+        double dBleu[][] = new double[width + 4][height + 4];
 
         for (j = 0; j < width; j++) {
             for (k = 0; k < height; k++) {
@@ -103,21 +103,20 @@ public class SapiroService {
                     double rG12 = rI_x * rI_y;
                     double rG22 = rI_y * rI_y;
                     double landaPLUS = (rG11 + rG22 + Math.sqrt(((rG11 - rG22) * (rG11 - rG22)) + 4 * rG12 * rG12)) / 2;
-                    double landaMOINS = (rG11 + rG22 - Math.sqrt(((rG11 - rG22) * (rG11 - rG22)) + 4 * rG12 * rG12)) / 2;
                     double redE = (rI_xx * rI_y * rI_y - 2 * rI_xy * rI_x * rI_y + rI_yy * rI_x * rI_x);
                     double redE2 = (rI_x * rI_x + rI_y * rI_y);
-                    if(redE2 == 0){
+                    if (redE2 == 0) {
                         redE2 = 0.0000000001;
                     }
-                    saprio[x][y] = Math.sqrt(landaPLUS - landaMOINS);
-                    sRouge[x][y] = (redE / redE2);
-                    sRouge[x][y] *= fctSeuille(saprio[x][y]);
+                    dizenzo[x][y] = Math.sqrt(landaPLUS);
+                    dRouge[x][y] = (redE / redE2);
+                    dRouge[x][y] *= fctSeuille(dizenzo[x][y]);
                 }
             }
             // Traitement  R 			
             for (x = 0; x < width + 4; x++) {
                 for (y = 0; y < height + 4; y++) {
-                    rouge[x][y] += dt * sRouge[x][y];
+                    rouge[x][y] += dt * dRouge[x][y];
                 }
             }
 
@@ -167,22 +166,21 @@ public class SapiroService {
                     double G12 = I_x * I_y;
                     double G22 = I_y * I_y;
                     double landaPLUS = (G11 + G22 + Math.sqrt(((G11 - G22) * (G11 - G22)) + 4 * G12 * G12)) / 2;
-                    double landaMOINS = (G11 + G22 - Math.sqrt(((G11 - G22) * (G11 - G22)) + 4 * G12 * G12)) / 2;
                     double greenE = (I_xx * I_y * I_y - 2 * I_xy * I_x * I_y + I_yy * I_x * I_x);
                     double greenE2 = (I_x * I_x + I_y * I_y);
-                    if(greenE2 == 0){
+                    if (greenE2 == 0) {
                         greenE2 = 0.0000000001;
                     }
-                    saprio[x][y] = Math.sqrt(landaPLUS - landaMOINS);
-                    sVert[x][y] = greenE / greenE2;
-                    sVert[x][y] *= fctSeuille(saprio[x][y]);
+                    dizenzo[x][y] = Math.sqrt(landaPLUS);
+                    dVert[x][y] = greenE / greenE2;
+                    dVert[x][y] *= fctSeuille(dizenzo[x][y]);
 
                 }
             }
             // Traitement V
             for (x = 0; x < width + 4; x++) {
                 for (y = 0; y < height + 4; y++) {
-                    vert[x][y] += dt * sVert[x][y];
+                    vert[x][y] += dt * dVert[x][y];
                 }
             }
 //---------------------------------------------------------------------------------------------------------------------
@@ -245,23 +243,22 @@ public class SapiroService {
                     double G12 = I_x * I_y;
                     double G22 = I_y * I_y;
                     double landaPLUS = (G11 + G22 + Math.sqrt(((G11 - G22) * (G11 - G22)) + 4 * G12 * G12)) / 2;
-                    double landaMOINS = (G11 + G22 - Math.sqrt(((G11 - G22) * (G11 - G22)) + 4 * G12 * G12)) / 2;
                     double blueE = (I_xx * I_y * I_y - 2 * I_xy * I_x * I_y + I_yy * I_x * I_x);
                     double blueE2 = (I_x * I_x + I_y * I_y);
-                    if(blueE2 == 0){
+                    if (blueE2 == 0) {
                         blueE2 = 0.0000000001;
                     }
-                    saprio[x][y] = Math.sqrt(landaPLUS - landaMOINS);
+                    dizenzo[x][y] = Math.sqrt(landaPLUS);
 
-                    sBleu[x][y] = (blueE / blueE2);
-                    sBleu[x][y] *= fctSeuille(saprio[x][y]);
+                    dBleu[x][y] = (blueE / blueE2);
+                    dBleu[x][y] *= fctSeuille(dizenzo[x][y]);
 
                 }
             }
             // TRAITEMENT B	
             for (x = 0; x < width + 4; x++) {
                 for (y = 0; y < height + 4; y++) {
-                    bleu[x][y] += dt * sBleu[x][y];
+                    bleu[x][y] += dt * dBleu[x][y];
                 }
             }
 //---------------------------------------------------------------------------------------------------------------------
@@ -301,7 +298,7 @@ public class SapiroService {
         return ImageIO.write(image, "png", outputfile);
     }
 
-    // To eliminate the flou
+    // To eliminate flou
     private double fctSeuille(double g) {
         return 1 / (1 + Math.pow(g, 2));
     }

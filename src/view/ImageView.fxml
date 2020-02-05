@@ -92,6 +92,7 @@
             <Menu mnemonicParsing="false" text="Traitement Couleur">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#sapiroFilter" text="Sapiro" />
+                  <MenuItem mnemonicParsing="false" onAction="#dizenzoFilter" text="Dizenzo" />
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Aidez-moi">

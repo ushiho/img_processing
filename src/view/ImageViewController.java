@@ -230,7 +230,7 @@ public class ImageViewController implements Initializable {
             if (imageView.getImage() != null) {
                 if (imageView.getViewport() == null) {
                     imageView.setViewport(new Rectangle2D(imageView.getImage().getWidth(), imageView.getImage().getHeight(),
-                             imageView.getImage().getWidth(), imageView.getImage().getHeight()));
+                            imageView.getImage().getWidth(), imageView.getImage().getHeight()));
                 }
                 double delta = e.getDeltaY();
                 Rectangle2D viewport = imageView.getViewport();
@@ -485,8 +485,9 @@ public class ImageViewController implements Initializable {
     }
 
     public void resetSourceImage() {
-        if(selectedImage != null)
-        selectedImage.setBufferedImage(SwingFXUtils.fromFXImage(imageSource.getImage(), null));
+        if (selectedImage != null) {
+            selectedImage.setBufferedImage(SwingFXUtils.fromFXImage(imageSource.getImage(), null));
+        }
     }
 
     public void sobelIy() throws IOException {
@@ -827,6 +828,44 @@ public class ImageViewController implements Initializable {
     }
 
     public EventHandler<ActionEvent> handleSapiroEvent(Stage stage) {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    if (!iteration.getText().equals("")) {
+                        resetSourceImage();
+                        setImageResult(sapiroService.run(selectedImage, Integer.parseInt(iteration.getText())), "Sapiro avec " + iteration.getText() + " itérations");
+                        applyFilterButton.setDisable(true);
+                        JFXToast.makeText(stage, "Traitement Terminé", JFXToast.LONG, JFXToast.CENTTER);
+                    } else {
+                        JFXToast.makeText(stage, "Veuillez donner le nombre d'itération.", 500, JFXToast.CENTTER);
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+    }
+
+    public void dizenzoFilter() {
+        try {
+            if (imageSourceIsSetted()) {
+                Stage stage = (Stage) imageSource.getScene().getWindow();
+                hideShowSeuilInfos(false);
+                hideShowIterationInfos(true);
+                applyFilterButton.setVisible(true);
+                iteration.setText("");
+                removeFocusOnTextField();
+                warningLabel.setText("Cas Couleur: Sapiro");
+                applyFilterButton.setOnAction(handleSapiroEvent(stage));
+                iteration.setOnAction(handleSapiroEvent(stage));
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ImageViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public EventHandler<ActionEvent> handleDizenzoEvent(Stage stage) {
         return new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {

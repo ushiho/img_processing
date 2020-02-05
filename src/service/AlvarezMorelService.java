@@ -102,9 +102,7 @@ public class AlvarezMorelService {
                     
                     double e =  (I_xx*I_y*I_y-2*I_xy*I_x*I_y+I_yy*I_x*I_x); 
                     double e2 = (I_x*I_x+I_y*I_y);
-                    if(e2==0.0) {
-                        e2=1;
-                    }  
+                    if(e2==0) e2=0.0000001;
                     double heat = (double)  I_xx + I_yy;
                     double emss =(double)  e/e2;
                     double grad = (double)  Math.sqrt(I_x*I_x+I_y*I_y);
